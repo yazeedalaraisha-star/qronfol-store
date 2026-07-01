@@ -239,6 +239,10 @@
       <div class="tab-content" id="tab-orders">
         <div class="admin-card">
           <h2><i class="fas fa-truck" style="color:var(--gold)"></i> الطلبات</h2>
+          <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">
+            <button onclick="sendAllNewToWhatsApp()" class="btn-primary" style="font-size:13px;padding:8px 18px"><i class="fab fa-whatsapp"></i> إرسال الجديد للواتساب</button>
+            <button onclick="refreshOrders()" class="btn-outline" style="font-size:13px;padding:8px 18px"><i class="fas fa-sync"></i> تحديث</button>
+          </div>
           <div class="orders-search">
             <input type="text" id="ordersSearch" placeholder="ابحث باسم العميل أو رقم الطلب..." oninput="renderOrders()">
             <select id="ordersStatusFilter" onchange="renderOrders()" style="padding:10px 16px;border:1.5px solid rgba(0,0,0,0.1);border-radius:var(--radius-sm);font-family:inherit;font-size:14px;background:var(--bg-light)">
@@ -284,22 +288,27 @@
         <div class="admin-card">
           <h2><i class="fas fa-cog" style="color:var(--gold)"></i> إعدادات الإشعارات</h2>
           <p style="color:var(--text-mid);margin-bottom:16px;font-size:14px">
-            🔔 إعدادات واتساب لتوصيل الطلبات تلقائياً.
-            <br>1. احفظ الرقم <b>+34 644 91 96 80</b> بجهات اتصالك
-            <br>2. ابعتله واتساب: <b>I allow callmebot to send me messages</b>
-            <br>3. راح يجيك API Key — <a href="https://www.callmebot.com/blog/free-api-whatsapp-messages/" target="_blank" style="color:var(--green-mid);text-decoration:underline">تفاصيل</a>
+            🔔 <b>الطريقة 1 — إرسال يدوي (موصى به حالياً)</b><br>
+            افتح صفحة الطلبات واضغط <b>"إرسال الجديد للواتساب"</b> — يفتح واتساب مباشرة بالرسالة.
+          </p>
+          <p style="color:var(--text-mid);margin-bottom:16px;font-size:14px;background:var(--bg-light);padding:12px;border-radius:8px">
+            🔄 <b>الطريقة 2 — إرسال تلقائي (اختياري)</b><br>
+            إذا حابب الطلبات توصل واتساب تلقائياً بدون ما تفتح الأدمن:<br>
+            1. احفظ الرقم <b>+34 644 91 96 80</b> بجهات اتصالك<br>
+            2. ابعتله واتساب: <b>I allow callmebot to send me messages</b><br>
+            3. راح يجيك API Key <a href="https://www.callmebot.com/blog/free-api-whatsapp-messages/" target="_blank" style="color:var(--green-mid);text-decoration:underline">شرح</a>
           </p>
           <form id="settingsForm" onsubmit="return saveSettings(event)">
             <div class="form-row">
               <div class="form-group">
                 <label>رقم واتساب المسؤول (مع مفتاح الدولة)</label>
                 <input type="text" id="settingsPhone" placeholder="مثال: 962792067277" style="direction:ltr;text-align:left">
-                <small style="color:var(--text-light);font-size:12px">مثال: 962792067277 (بدون + أو 00)</small>
+                <small style="color:var(--text-light);font-size:12px">للإرسال التلقائي (اختياري)</small>
               </div>
               <div class="form-group">
                 <label>API Key من CallMeBot</label>
                 <input type="text" id="settingsApiKey" placeholder="مثال: 123456" style="direction:ltr;text-align:left">
-                <small style="color:var(--text-light);font-size:12px">يوصلك عالواتساب بعد إرسال "I allow callmebot"</small>
+                <small style="color:var(--text-light);font-size:12px">للإرسال التلقائي (اختياري)</small>
               </div>
             </div>
             <button type="submit" class="btn-primary" style="font-size:14px;padding:10px 24px"><i class="fas fa-save"></i> حفظ إعدادات الإشعارات</button>
@@ -590,7 +599,10 @@
                   </select>
                 </td>
                 <td><div class="order-detail-items">${itemsHtml}</div></td>
-                <td><button class="action-btn edit" onclick="notifyCustomer(${o.id})" title="إرسال إشعار للعميل"><i class="fas fa-bell"></i></button></td>
+                <td>
+                  <button class="action-btn edit" onclick="notifyCustomer(${o.id})" title="إشعار للعميل"><i class="fas fa-bell"></i></button>
+                  <button class="action-btn edit" onclick="sendOrderToWhatsApp(${o.id})" title="إرسال للواتساب" style="background:#25D366;color:white"><i class="fab fa-whatsapp"></i></button>
+                </td>
               </tr>`;
             }).join('')
           : '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-light)">لا توجد طلبات</td></tr>';
@@ -609,6 +621,37 @@
         renderOrders();
       } catch {}
     }
+
+    function buildWhatsAppMessage(order) {
+      const items = (order.items || []).map(i => `• ${i.title} x${i.quantity} = ${(i.price * i.quantity).toFixed(2)} JOD`).join('\n');
+      return `🆔 *رقم الطلب: ${order.id}*\n🌿 *طلب جديد من قرنفل* 🌿\n━━━━━━━━━━━━━━━━\n👤 الاسم: ${order.name}\n📞 الهاتف: ${order.phone}\n📍 العنوان: ${order.address}\n━━━━━━━━━━━━━━━━\n*المنتجات:*\n${items}\n━━━━━━━━━━━━━━━━\n💵 *المجموع:* ${order.total} JOD`;
+    }
+
+    async function sendOrderToWhatsApp(orderId) {
+      try {
+        const orders = await (await fetch('/api/orders')).json();
+        const order = orders.find(o => o.id == orderId);
+        if (order) openWhatsApp(buildWhatsAppMessage(order));
+      } catch { alert('تعذر تحميل الطلب'); }
+    }
+
+    function openWhatsApp(text) {
+      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    }
+
+    async function sendAllNewToWhatsApp() {
+      try {
+        const orders = await (await fetch('/api/orders')).json();
+        const newOrders = orders.filter(o => o.status === 'جديد');
+        if (!newOrders.length) { alert('لا توجد طلبات جديدة'); return; }
+        const msg = newOrders.map((o, i) =>
+          `━━━━━━━━━━━━━━━━\n*طلب #${o.id}*\n👤 ${o.name}\n📞 ${o.phone}\n📍 ${o.address}\n📦 ${(o.items||[]).map(it => `${it.title} x${it.quantity}`).join(', ')}\n💵 ${o.total} JOD`
+        ).join('\n');
+        openWhatsApp(`🌿 *طلبات قرنفل الجديدة* 🌿\nعدد الطلبات: ${newOrders.length}\n${msg}\n━━━━━━━━━━━━━━━━`);
+      } catch { alert('تعذر تحميل الطلبات'); }
+    }
+
+    function refreshOrders() { renderOrders(); }
 
     async function notifyCustomer(orderId) {
       try {
