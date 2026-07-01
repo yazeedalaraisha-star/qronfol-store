@@ -352,7 +352,13 @@
       if (el) el.classList.add('active');
       const titles = { products: 'إدارة المنتجات', orders: 'الطلبات', settings: 'الإعدادات' };
       document.getElementById('pageTitle').textContent = titles[name] || 'لوحة التحكم';
-      if (name === 'orders') renderOrders();
+      if (name === 'orders') {
+        renderOrders();
+        if (ordersRefreshTimer) clearInterval(ordersRefreshTimer);
+        ordersRefreshTimer = setInterval(renderOrders, 15000);
+      } else {
+        if (ordersRefreshTimer) { clearInterval(ordersRefreshTimer); ordersRefreshTimer = null; }
+      }
     }
 
     // ==================== PRODUCTS ====================
@@ -498,9 +504,12 @@
 
     // ==================== ORDERS ====================
 
+    let ordersRefreshTimer = null;
+
     async function renderOrders() {
       try {
         const res = await fetch('/api/orders');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const orders = await res.json();
         const search = (document.getElementById('ordersSearch').value || '').toLowerCase();
         const statusFilter = document.getElementById('ordersStatusFilter').value;
@@ -519,16 +528,30 @@
         document.getElementById('orderStatNew').textContent = newCount;
         document.getElementById('orderStatDelivered').textContent = deliveredCount;
 
+        // Update badge on orders sidebar link
+        const ordersLink = document.querySelectorAll('.admin-sidebar a:not(.logo-link)')[1];
+        if (ordersLink) {
+          const existing = ordersLink.querySelector('.badge-count');
+          if (existing) existing.remove();
+          if (newCount > 0) {
+            const badge = document.createElement('span');
+            badge.className = 'badge-count';
+            badge.textContent = newCount;
+            badge.style.cssText = 'background:var(--palestine-red);color:white;font-size:11px;padding:1px 7px;border-radius:50px;margin-right:auto;font-weight:700';
+            ordersLink.appendChild(badge);
+          }
+        }
+
         const statusClasses = { 'جديد': 'status-new', 'تم التأكيد': 'status-confirmed', 'تم الشحن': 'status-shipped', 'تم التوصيل': 'status-delivered' };
 
         document.getElementById('ordersTableBody').innerHTML = filtered.length
           ? filtered.map(o => {
-              const itemsHtml = o.items.map(i => `<div>${i.title} x${i.quantity} = ${(i.price * i.quantity).toFixed(2)} JOD</div>`).join('');
+              const itemsHtml = o.items ? o.items.map(i => `<div>${i.title} x${i.quantity} = ${(i.price * i.quantity).toFixed(2)} JOD</div>`).join('') : '';
               return `<tr>
                 <td><strong>#${o.id}</strong></td>
-                <td>${o.name}</td>
-                <td dir="ltr" style="text-align:right">${o.phone}</td>
-                <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${o.address}">${o.address}</td>
+                <td>${o.name || '—'}</td>
+                <td dir="ltr" style="text-align:right">${o.phone || '—'}</td>
+                <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${o.address || ''}">${o.address || '—'}</td>
                 <td style="direction:ltr;text-align:right">${o.total} JOD</td>
                 <td style="font-size:12px;white-space:nowrap">${new Date(o.createdAt).toLocaleDateString('ar')}</td>
                 <td>
@@ -543,8 +566,10 @@
                 <td><button class="action-btn edit" onclick="notifyCustomer(${o.id})" title="إرسال إشعار للعميل"><i class="fas fa-bell"></i></button></td>
               </tr>`;
             }).join('')
-          : '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-light)">لا توجد طلبات</td></tr>';
-      } catch {}
+          : '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-light)">لا توجد طلبات</td></tr>';
+      } catch (err) {
+        console.error('renderOrders error:', err);
+      }
     }
 
     async function updateOrderStatus(orderId, status) {
