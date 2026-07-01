@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "id": 1782906630593,
+    "name": "Test",
+    "phone": "0790000000",
+    "address": "Amman",
+    "items": [
+      {
+        "price": 10,
+        "title": "Test",
+        "quantity": 1
+      }
+    ],
+    "total": "10.00",
+    "createdAt": "2026-07-01T11:50:30.593Z",
+    "status": "جديد"
+  }
+]

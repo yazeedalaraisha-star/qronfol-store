@@ -233,9 +233,8 @@ async function fetchProductsFromServer() {
       }
     }
   } catch {}
-  const local = loadProducts();
   PRODUCTS.length = 0;
-  PRODUCTS.push(...local);
+  PRODUCTS.push(...JSON.parse(JSON.stringify(PRODUCTS_STATIC)));
   document.dispatchEvent(new CustomEvent('products:loaded'));
 }
 
