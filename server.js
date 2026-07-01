@@ -123,7 +123,7 @@ app.post('/api/order', (req, res) => {
     const fallbackUrl = `https://wa.me/${adminPhone || '962792067277'}?text=${encodeURIComponent(whatsappMessage)}`;
 
     // Respond immediately so the client doesn't time out
-    res.json({ success: true, method: 'callmebot', sent: false, orderId: order.id, fallbackUrl });
+    res.json({ success: true, method: 'callmebot', sent: false, orderId: order.id, fallbackUrl, adminPhone: adminPhone || '962792067277' });
 
     // Try CallMeBot in background (non-blocking, fire-and-forget)
     if (adminPhone && apiKey) {

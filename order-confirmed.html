@@ -49,6 +49,10 @@
         <a href="/" class="btn-primary"><i class="fas fa-arrow-right"></i> العودة للمتجر</a>
         <a href="https://wa.me/962792067277" target="_blank" class="btn-outline"><i class="fab fa-whatsapp"></i> تواصل معنا</a>
       </div>
+      <div style="margin-top:16px;text-align:center">
+        <button onclick="resendWhatsApp()" class="btn-primary" style="background:#25D366;border-color:#25D366;font-size:14px;padding:12px 24px"><i class="fab fa-whatsapp"></i> إرسال الطلب عبر واتساب</button>
+        <p style="color:var(--text-light);font-size:12px;margin-top:8px">تأكد من إرسال الطلب للواتساب حتى يتم معالجته</p>
+      </div>
     </div>
   </div>
 
@@ -73,13 +77,40 @@
         document.getElementById('orderItems').innerHTML = '<h3>المنتجات</h3>' +
           order.items.map(i => `<div class="conf-item"><span>${i.title}</span><span>×${i.quantity} = ${(i.price * i.quantity).toFixed(2)} JOD</span></div>`).join('');
         document.getElementById('orderTotal').textContent = order.total + ' JOD';
-        sessionStorage.removeItem('lastOrder');
+
+        window._lastOrder = order;
       } else {
         document.querySelector('.confirmation-details').style.display = 'none';
         document.getElementById('orderItems').style.display = 'none';
         document.getElementById('orderTotal').style.display = 'none';
+        document.querySelector('.confirmation-actions + div').style.display = 'none';
       }
     })();
+
+    function resendWhatsApp() {
+      const order = window._lastOrder;
+      if (!order) return;
+      const date = new Date(order.createdAt).toLocaleString('ar', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const items = (order.items || []).map(i =>
+        `🛒 ${i.title}\n   ${i.quantity} × ${i.price.toFixed(2)} JOD = ${(i.price * i.quantity).toFixed(2)} JOD`
+      ).join('\n');
+      let msg = `🌿 *قرنفل — طلب جديد* 🌿\n`;
+      msg += `━━━━━━━━━━━━━━━━\n`;
+      msg += `🆔 *رقم الطلب:* #${order.id}\n`;
+      msg += `📅 *التاريخ:* ${date}\n`;
+      msg += `━━━━━━━━━━━━━━━━\n`;
+      msg += `👤 *العميل:* ${order.name}\n`;
+      msg += `📞 *الهاتف:* ${order.phone}\n`;
+      msg += `📍 *العنوان:* ${order.address}\n`;
+      if (order.notes) msg += `📝 *ملاحظات:* ${order.notes}\n`;
+      msg += `━━━━━━━━━━━━━━━━\n`;
+      msg += `*المنتجات:*\n${items}\n`;
+      msg += `━━━━━━━━━━━━━━━━\n`;
+      msg += `💵 *الإجمالي:* ${order.total} JOD\n`;
+      msg += `━━━━━━━━━━━━━━━━\n`;
+      msg += `🌐 قرنفل — متجر التراث الفلسطيني`;
+      window.open('https://wa.me/962792067277?text=' + encodeURIComponent(msg), '_blank');
+    }
   </script>
 </body>
 </html>

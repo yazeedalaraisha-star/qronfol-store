@@ -329,6 +329,12 @@ async function submitCheckout(e) {
       }));
 
       cart.clear();
+
+      // Open WhatsApp so customer can send order to admin manually
+      if (data.fallbackUrl) {
+        window.open(data.fallbackUrl, '_blank');
+      }
+
       window.location.href = '/order-confirmed.html?id=' + data.orderId;
     } else {
       const errText = await res.text().catch(() => '');
