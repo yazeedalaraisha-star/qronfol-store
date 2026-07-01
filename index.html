@@ -116,6 +116,82 @@
     </div>
   </section>
 
+  <!-- Olive Tree Section -->
+  <section class="olive-tree-section" id="treeSection">
+    <div class="container">
+      <div class="olive-tree-content">
+        <div class="tree-visual" id="treeVisual">
+          <svg viewBox="0 0 240 320" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="120" cy="300" rx="90" ry="10" fill="#8B6914" opacity="0.15"/>
+            <path d="M115 290 Q118 200 120 150 Q122 200 125 290" fill="#5D4037"/>
+            <path d="M110 290 Q118 200 120 150" fill="none" stroke="#4E342E" stroke-width="1.5"/>
+
+            <g class="ts-1">
+              <path d="M120 160 Q130 140 140 120" fill="none" stroke="#2E7D32" stroke-width="3"/>
+              <ellipse cx="142" cy="116" rx="14" ry="9" fill="#4CAF50" transform="rotate(-20 142 116)"/>
+              <path d="M120 160 Q110 140 100 125" fill="none" stroke="#2E7D32" stroke-width="3"/>
+              <ellipse cx="97" cy="122" rx="12" ry="8" fill="#4CAF50" transform="rotate(15 97 122)"/>
+            </g>
+
+            <g class="ts-2">
+              <path d="M120 130 Q145 110 160 90" fill="none" stroke="#388E3C" stroke-width="2.5"/>
+              <ellipse cx="163" cy="86" rx="12" ry="8" fill="#66BB6A" transform="rotate(-25 163 86)"/>
+              <path d="M120 130 Q95 105 80 95" fill="none" stroke="#388E3C" stroke-width="2.5"/>
+              <ellipse cx="77" cy="92" rx="10" ry="7" fill="#66BB6A" transform="rotate(20 77 92)"/>
+              <path d="M120 120 Q125 100 130 80" fill="none" stroke="#388E3C" stroke-width="2"/>
+              <ellipse cx="133" cy="76" rx="11" ry="8" fill="#4CAF50" transform="rotate(-10 133 76)"/>
+            </g>
+
+            <g class="ts-3">
+              <path d="M120 110 Q140 85 155 60" fill="none" stroke="#388E3C" stroke-width="2"/>
+              <ellipse cx="158" cy="56" rx="15" ry="10" fill="#81C784" transform="rotate(-20 158 56)"/>
+              <path d="M120 110 Q100 85 85 65" fill="none" stroke="#388E3C" stroke-width="2"/>
+              <ellipse cx="82" cy="60" rx="13" ry="9" fill="#81C784" transform="rotate(15 82 60)"/>
+              <path d="M120 95 Q130 70 135 45" fill="none" stroke="#388E3C" stroke-width="2"/>
+              <ellipse cx="138" cy="40" rx="12" ry="9" fill="#66BB6A" transform="rotate(-15 138 40)"/>
+            </g>
+
+            <g class="ts-4">
+              <path d="M100 120 Q80 90 65 55" fill="none" stroke="#2E7D32" stroke-width="2"/>
+              <ellipse cx="61" cy="50" rx="16" ry="11" fill="#A5D6A7" transform="rotate(25 61 50)"/>
+              <path d="M140 120 Q160 90 175 60" fill="none" stroke="#2E7D32" stroke-width="2"/>
+              <ellipse cx="178" cy="55" rx="15" ry="11" fill="#A5D6A7" transform="rotate(-25 178 55)"/>
+              <path d="M120 80 Q135 55 145 30" fill="none" stroke="#1B5E20" stroke-width="2"/>
+              <ellipse cx="148" cy="26" rx="13" ry="10" fill="#81C784" transform="rotate(-10 148 26)"/>
+              <ellipse cx="105" cy="35" rx="17" ry="12" fill="#A5D6A7" transform="rotate(10 105 35)"/>
+              <ellipse cx="140" cy="50" rx="15" ry="11" fill="#66BB6A"/>
+            </g>
+
+            <g class="ts-5">
+              <circle cx="158" cy="53" r="4" fill="#33691E"/>
+              <circle cx="168" cy="48" r="3.5" fill="#4CAF50"/>
+              <circle cx="173" cy="58" r="3.5" fill="#33691E"/>
+              <circle cx="80" cy="58" r="3.5" fill="#33691E"/>
+              <circle cx="72" cy="48" r="3" fill="#4CAF50"/>
+              <circle cx="88" cy="45" r="3.5" fill="#33691E"/>
+              <circle cx="135" cy="28" r="3.5" fill="#33691E"/>
+              <circle cx="145" cy="24" r="3" fill="#4CAF50"/>
+              <circle cx="150" cy="20" r="3" fill="#FFF9C4"/>
+              <circle cx="155" cy="23" r="2.5" fill="#FFF176"/>
+              <circle cx="60" cy="42" r="3" fill="#FFF9C4"/>
+              <circle cx="178" cy="48" r="2.5" fill="#FFF176"/>
+              <ellipse cx="198" cy="30" rx="5" ry="3" fill="#81C784" opacity="0.5" transform="rotate(30 198 30)"/>
+              <ellipse cx="42" cy="70" rx="4" ry="2.5" fill="#A5D6A7" opacity="0.4" transform="rotate(-20 42 70)"/>
+            </g>
+          </svg>
+        </div>
+        <div class="tree-info">
+          <h2>🌿 غابتنا تنمو</h2>
+          <p>كل طلب يزرع شجرة زيتون في غابتنا الرقمية<br><small style="color:var(--text-light);font-size:13px">رمزاً للصمود والعودة</small></p>
+          <div class="tree-counter">
+            <span class="tree-count" id="treeCount">0</span>
+            <span class="tree-label">شجرة زيتون نمت بفضل طلباتكم</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- About Section -->
   <section class="about-section" id="about">
     <div class="container">
@@ -267,6 +343,26 @@
         إرسال الطلب عبر واتساب
       </button>
     </form>
+  </div>
+
+  <!-- Story Viewer Overlay -->
+  <div class="story-overlay" id="storyOverlay" style="display:none">
+    <div class="story-backdrop" onclick="closeStory()"></div>
+    <div class="story-container">
+      <div class="story-header">
+        <div class="story-progress" id="storyProgress"></div>
+        <div class="story-meta">
+          <span id="storyProductName"></span>
+          <button class="story-close-btn" onclick="closeStory()"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+      <div class="story-body" id="storyBody">
+        <div class="story-slide-content" id="storySlideContent"></div>
+        <div class="story-nav-left" onclick="prevStorySlide()"><i class="fas fa-chevron-left"></i></div>
+        <div class="story-nav-right" onclick="nextStorySlide()"><i class="fas fa-chevron-right"></i></div>
+      </div>
+      <div class="story-caption" id="storyCaption"></div>
+    </div>
   </div>
 
   <script src="js/products.js"></script>

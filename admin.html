@@ -187,6 +187,19 @@
                 </div>
               </div>
             </div>
+
+            <div class="form-row">
+              <div class="form-group full">
+                <label><i class="fas fa-book-open" style="color:var(--gold)"></i> قصة المنتج (Story)</label>
+                <p style="color:var(--text-light);font-size:12px;margin-bottom:8px">أضف صور، فيديوهات، أو نصوص لعرضها كقصة تفاعلية للمنتج</p>
+                <div id="storySlides" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
+                <div style="display:flex;gap:8px">
+                  <button type="button" onclick="addStorySlide('image')" class="btn-outline" style="font-size:12px;padding:6px 14px"><i class="fas fa-image"></i> صورة</button>
+                  <button type="button" onclick="addStorySlide('video')" class="btn-outline" style="font-size:12px;padding:6px 14px"><i class="fas fa-video"></i> فيديو</button>
+                  <button type="button" onclick="addStorySlide('text')" class="btn-outline" style="font-size:12px;padding:6px 14px"><i class="fas fa-paragraph"></i> نص</button>
+                </div>
+              </div>
+            </div>
             <div style="display:flex;gap:12px;margin-top:8px">
               <button type="submit" class="btn-primary" style="font-size:15px;padding:12px 28px"><i class="fas fa-save"></i> حفظ المنتج</button>
               <button type="button" class="btn-outline" onclick="resetForm()" style="font-size:15px;padding:12px 28px">إلغاء</button>
@@ -418,18 +431,19 @@
       const icon = document.getElementById('prodIcon').value;
       const image = document.getElementById('prodImage').value.trim();
       const tags = Array.from(document.querySelectorAll('#tagsCheckboxes input:checked')).map(cb => cb.value);
+      const story = getStorySlides();
 
       if (!title || isNaN(price)) { alert('يرجى تعبئة الحقول المطلوبة'); return; }
 
       if (editingId) {
         const product = PRODUCTS.find(p => p.id === editingId);
-        if (product) { Object.assign(product, { title, titleEn, description: desc, price, oldPrice, stock, category, badge, icon, image, tags }); }
+        if (product) { Object.assign(product, { title, titleEn, description: desc, price, oldPrice, stock, category, badge, icon, image, tags, story }); }
         editingId = null;
         document.querySelector('#productFormCard h2').innerHTML = '<i class="fas fa-plus-circle" style="color:var(--gold)"></i> إضافة منتج جديد';
         document.querySelector('#productFormCard .btn-primary').innerHTML = '<i class="fas fa-save"></i> حفظ المنتج';
       } else {
         const newId = Math.max(...PRODUCTS.map(p => p.id), 0) + 1;
-        PRODUCTS.push({ id: newId, title, titleEn, description: desc, price, oldPrice, stock, category, badge, icon, image });
+        PRODUCTS.push({ id: newId, title, titleEn, description: desc, price, oldPrice, stock, category, badge, icon, image, tags, story });
       }
 
       saveProducts(PRODUCTS);
@@ -452,6 +466,10 @@
       document.getElementById('prodIcon').value = p.icon || 'fa-solid fa-box';
       document.getElementById('prodImage').value = p.image || '';
       document.querySelectorAll('#tagsCheckboxes input').forEach(cb => cb.checked = p.tags && p.tags.includes(cb.value));
+      document.getElementById('storySlides').innerHTML = '';
+      if (p.story && p.story.length) {
+        p.story.forEach(s => addStorySlide(s.type, s));
+      }
       previewImageUrl(p.image || '');
       updateIconPreview();
       document.querySelector('#productFormCard h2').innerHTML = '<i class="fas fa-pen" style="color:var(--gold)"></i> تعديل المنتج';
@@ -476,6 +494,7 @@
       document.getElementById('prodStock').value = '';
       document.querySelectorAll('#tagsCheckboxes input').forEach(cb => cb.checked = false);
       document.getElementById('imageUrlPreview').style.display = 'none';
+      document.getElementById('storySlides').innerHTML = '';
       editingId = null;
       document.querySelector('#productFormCard h2').innerHTML = '<i class="fas fa-plus-circle" style="color:var(--gold)"></i> إضافة منتج جديد';
       document.querySelector('#productFormCard .btn-primary').innerHTML = '<i class="fas fa-save"></i> حفظ المنتج';
@@ -512,6 +531,47 @@
         preview.style.display = 'block';
         preview.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=color:var(--palestine-red);font-size:12px;padding:8px;text-align:center>⚠️ الرابط لا يعمل</span>'">`;
       } else { preview.style.display = 'none'; }
+    }
+
+    // ==================== STORY SLIDES ====================
+
+    function addStorySlide(type, data) {
+      const container = document.getElementById('storySlides');
+      const idx = container.children.length;
+      const slide = document.createElement('div');
+      slide.className = 'story-slide';
+      slide.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg-light);border-radius:var(--radius-sm)';
+      const icons = { image: 'fa-image', video: 'fa-video', text: 'fa-paragraph' };
+      const labels = { image: 'صورة', video: 'فيديو', text: 'نص' };
+      let inputHtml = '';
+      if (type === 'text') {
+        inputHtml = `<textarea placeholder="نص القصة..." style="flex:1;padding:8px;border:1px solid rgba(0,0,0,0.1);border-radius:6px;font-family:inherit;font-size:13px;resize:vertical;min-height:50px">${data && data.content || ''}</textarea>`;
+      } else {
+        inputHtml = `<input type="url" placeholder="رابط ${labels[type]}..." value="${data && data.url || ''}" style="flex:1;padding:8px;border:1px solid rgba(0,0,0,0.1);border-radius:6px;font-family:inherit;font-size:13px">`;
+      }
+      slide.innerHTML = `
+        <i class="fas ${icons[type]}" style="color:var(--gold);font-size:16px"></i>
+        <span style="font-size:12px;color:var(--text-mid);min-width:40px">${labels[type]}</span>
+        ${inputHtml}
+        <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--palestine-red);cursor:pointer;font-size:16px"><i class="fas fa-times"></i></button>
+      `;
+      container.appendChild(slide);
+    }
+
+    function getStorySlides() {
+      const slides = [];
+      document.querySelectorAll('#storySlides .story-slide').forEach(el => {
+        const icon = el.querySelector('i:first-child');
+        const type = icon.classList.contains('fa-image') ? 'image' : icon.classList.contains('fa-video') ? 'video' : 'text';
+        if (type === 'text') {
+          const content = el.querySelector('textarea').value.trim();
+          if (content) slides.push({ type, content });
+        } else {
+          const url = el.querySelector('input').value.trim();
+          if (url) slides.push({ type, url });
+        }
+      });
+      return slides;
     }
 
     // ==================== ORDERS ====================

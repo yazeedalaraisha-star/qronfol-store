@@ -56,7 +56,7 @@ function getDefaultProducts() {
 let Product, Order, Settings;
 
 if (USE_MONGO) {
-  const productSchema = new mongoose.Schema({ id: Number, title: String, titleEn: String, description: String, price: Number, oldPrice: Number, category: String, badge: String, icon: String, image: String, stock: Number, tags: [String] }, { collection: 'products' });
+  const productSchema = new mongoose.Schema({ id: Number, title: String, titleEn: String, description: String, price: Number, oldPrice: Number, category: String, badge: String, icon: String, image: String, stock: Number, tags: [String], story: [mongoose.Schema.Types.Mixed] }, { collection: 'products' });
   const orderSchema = new mongoose.Schema({ id: Number, name: String, phone: String, address: String, notes: String, items: Array, total: String, createdAt: String, status: String }, { collection: 'orders' });
   const settingsSchema = new mongoose.Schema({ whatsappNumber: String, callmebotApiKey: String, shippingCost: Number, freeShippingOver: Number }, { collection: 'settings' });
 

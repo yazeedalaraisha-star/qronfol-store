@@ -164,7 +164,7 @@ function initProducts() {
           <div class="product-body">
             <span class="product-category">${CATEGORIES[product.category] || product.category}</span>
             <h3 class="product-title" title="${product.titleEn || ''}">${product.title}</h3>
-            ${tagsHtml}
+                ${tagsHtml}
             <p class="product-description">${product.description}</p>
             <div class="product-footer">
               <span class="product-price">${oldPriceHtml}${formatPrice(product.price)}</span>
@@ -172,7 +172,10 @@ function initProducts() {
                 ${addBtnHtml}
               </div>
             </div>
-            ${shareProduct(product)}
+            <div class="product-actions">
+              ${(product.story && product.story.length) ? `<button class="story-btn" onclick="openStory(${product.id})"><i class="fas fa-book-open"></i> القصة</button>` : ''}
+              ${shareProduct(product)}
+            </div>
           </div>
         </div>`;
     }).join('');
@@ -330,8 +333,8 @@ async function submitCheckout(e) {
       }));
 
       cart.clear();
+      updateOliveTree();
 
-      // Redirect customer directly to WhatsApp with order details
       if (data.fallbackUrl) {
         window.location.href = data.fallbackUrl;
       } else {
@@ -364,6 +367,104 @@ function initSmoothScroll() {
   });
 }
 
+// ==================== STORY VIEWER ====================
+let currentStory = [];
+let storyIndex = 0;
+let storyTimer = null;
+
+window.openStory = function(productId) {
+  const product = PRODUCTS.find(p => p.id === productId);
+  if (!product || !product.story || !product.story.length) return;
+  currentStory = product.story;
+  storyIndex = 0;
+  document.getElementById('storyProductName').textContent = product.title;
+  document.getElementById('storyOverlay').style.display = 'flex';
+  showStorySlide(0);
+  startStoryTimer();
+};
+
+function showStorySlide(idx) {
+  if (idx < 0 || idx >= currentStory.length) { closeStory(); return; }
+  storyIndex = idx;
+  const slide = currentStory[idx];
+  const container = document.getElementById('storySlideContent');
+  const caption = document.getElementById('storyCaption');
+  const progress = document.getElementById('storyProgress');
+
+  // Update progress bars
+  progress.innerHTML = currentStory.map((_, i) =>
+    `<div class="story-progress-bar ${i < idx ? 'done' : i === idx ? 'active' : ''}"><div class="story-progress-fill" style="${i === idx ? 'animation: storyProgress 4s linear' : ''}"></div></div>`
+  ).join('');
+
+  caption.textContent = slide.caption || '';
+
+  if (slide.type === 'image') {
+    container.innerHTML = `<img src="${slide.url}" alt="" class="story-media" onerror="this.outerHTML='<div class=story-error>⚠️ فشل تحميل الصورة</div>'">`;
+  } else if (slide.type === 'video') {
+    container.innerHTML = `<video src="${slide.url}" class="story-media" autoplay controls playsinline onerror="this.outerHTML='<div class=story-error>⚠️ فشل تحميل الفيديو</div>'"></video>`;
+  } else if (slide.type === 'text') {
+    container.innerHTML = `<div class="story-text-content">${slide.content.replace(/\n/g, '<br>')}</div>`;
+  }
+}
+
+window.nextStorySlide = function() {
+  clearTimeout(storyTimer);
+  showStorySlide(storyIndex + 1);
+  startStoryTimer();
+};
+
+window.prevStorySlide = function() {
+  clearTimeout(storyTimer);
+  showStorySlide(storyIndex - 1);
+  startStoryTimer();
+};
+
+function startStoryTimer() {
+  clearTimeout(storyTimer);
+  const slide = currentStory[storyIndex];
+  if (!slide) return;
+  const delay = slide.type === 'text' ? 8000 : 4000;
+  storyTimer = setTimeout(nextStorySlide, delay);
+}
+
+window.closeStory = function() {
+  clearTimeout(storyTimer);
+  document.getElementById('storyOverlay').style.display = 'none';
+  document.getElementById('storySlideContent').innerHTML = '';
+};
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (document.getElementById('storyOverlay').style.display !== 'flex') return;
+  if (e.key === 'ArrowRight') nextStorySlide();
+  else if (e.key === 'ArrowLeft') prevStorySlide();
+  else if (e.key === 'Escape') closeStory();
+});
+
+// ==================== OLIVE TREE ====================
+function updateOliveTree() {
+  const visual = document.getElementById('treeVisual');
+  const countEl = document.getElementById('treeCount');
+  if (!visual || !countEl) return;
+  fetch('/api/orders', { signal: AbortSignal.timeout(10000) })
+    .then(r => r.json())
+    .then(orders => {
+      const count = orders.length;
+      const stages = [0, 5, 20, 50, 100];
+      let stage = 0;
+      for (let i = stages.length - 1; i >= 0; i--) {
+        if (count >= stages[i]) { stage = i; break; }
+      }
+      visual.className = 'tree-visual tree-stage-' + stage;
+      countEl.textContent = count;
+    })
+    .catch(() => { countEl.textContent = '🌱'; });
+}
+
+// Init tree on load
+setTimeout(updateOliveTree, 1500);
+
+// ==================== SCROLL ACTIVE NAV ====================
 window.addEventListener('scroll', () => {
   const sections = document.querySelectorAll('section[id]');
   const navLinks = document.querySelectorAll('.nav-link');
