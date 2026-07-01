@@ -341,7 +341,7 @@
 
     function ensureProducts() {
       if (!PRODUCTS || PRODUCTS.length === 0) {
-        PRODUCTS = loadProducts();
+        PRODUCTS = JSON.parse(JSON.stringify(PRODUCTS_STATIC));
       }
     }
 
@@ -634,6 +634,9 @@
     loadSettings();
     updateIconPreview();
     renderTable();
+
+    // Re-render when server data arrives (async fetch in products.js)
+    document.addEventListener('products:loaded', renderTable);
   </script>
 </body>
 </html>
