@@ -3,12 +3,15 @@ const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const https = require('https');
+const mongoose = require('mongoose');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const MONGODB_URI = process.env.MONGODB_URI;
 const DATA_FILE = path.join(__dirname, 'data', 'products.json');
 const SETTINGS_FILE = path.join(__dirname, 'data', 'settings.json');
 const ORDERS_FILE = path.join(__dirname, 'data', 'orders.json');
+const USE_MONGO = !!MONGODB_URI;
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -26,10 +29,6 @@ function readJSON(file) {
 function writeJSON(file, data) {
   fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
 }
-
-if (!fs.existsSync(DATA_FILE)) writeJSON(DATA_FILE, getDefaultProducts());
-if (!fs.existsSync(SETTINGS_FILE)) writeJSON(SETTINGS_FILE, { whatsappNumber: '', callmebotApiKey: '', shippingCost: 0, freeShippingOver: 0 });
-if (!fs.existsSync(ORDERS_FILE)) writeJSON(ORDERS_FILE, []);
 
 function getDefaultProducts() {
   return [
@@ -52,34 +51,89 @@ function getDefaultProducts() {
   ];
 }
 
-app.get('/api/products', (req, res) => {
-  try { res.json(readJSON(DATA_FILE)); }
-  catch { res.json(getDefaultProducts()); }
+// ==================== MongoDB Schema ====================
+
+let Product, Order, Settings;
+
+if (USE_MONGO) {
+  const productSchema = new mongoose.Schema({ id: Number, title: String, titleEn: String, description: String, price: Number, oldPrice: Number, category: String, badge: String, icon: String, image: String, stock: Number, tags: [String] }, { collection: 'products' });
+  const orderSchema = new mongoose.Schema({ id: Number, name: String, phone: String, address: String, notes: String, items: Array, total: String, createdAt: String, status: String }, { collection: 'orders' });
+  const settingsSchema = new mongoose.Schema({ whatsappNumber: String, callmebotApiKey: String, shippingCost: Number, freeShippingOver: Number }, { collection: 'settings' });
+
+  Product = mongoose.model('Product', productSchema);
+  Order = mongoose.model('Order', orderSchema);
+  Settings = mongoose.model('Settings', settingsSchema);
+}
+
+async function getMongoProducts() {
+  const count = await Product.countDocuments();
+  if (count === 0) await Product.insertMany(getDefaultProducts());
+  return await Product.find().lean();
+}
+
+async function getMongoSettings() {
+  let s = await Settings.findOne().lean();
+  if (!s) {
+    s = { whatsappNumber: '', callmebotApiKey: '', shippingCost: 0, freeShippingOver: 0 };
+    await Settings.create(s);
+  }
+  return s;
+}
+
+// ==================== Products API ====================
+
+app.get('/api/products', async (req, res) => {
+  try {
+    if (USE_MONGO) return res.json(await getMongoProducts());
+    res.json(readJSON(DATA_FILE));
+  } catch { res.json(getDefaultProducts()); }
 });
 
-app.post('/api/products', (req, res) => {
+app.post('/api/products', async (req, res) => {
   try {
     const products = req.body;
     if (!Array.isArray(products)) return res.status(400).json({ error: 'Invalid data format' });
+    if (USE_MONGO) {
+      await Product.deleteMany({});
+      await Product.insertMany(products);
+      return res.json({ success: true });
+    }
     writeJSON(DATA_FILE, products);
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.get('/api/settings', (req, res) => {
-  try { res.json(readJSON(SETTINGS_FILE)); }
-  catch { res.json({ whatsappNumber: '', callmebotApiKey: '', shippingCost: 0, freeShippingOver: 0 }); }
+// ==================== Settings API ====================
+
+app.get('/api/settings', async (req, res) => {
+  try {
+    if (USE_MONGO) return res.json(await getMongoSettings());
+    res.json(readJSON(SETTINGS_FILE));
+  } catch { res.json({ whatsappNumber: '', callmebotApiKey: '', shippingCost: 0, freeShippingOver: 0 }); }
 });
 
-app.post('/api/settings', (req, res) => {
-  try { writeJSON(SETTINGS_FILE, req.body); res.json({ success: true }); }
-  catch (err) { res.status(500).json({ error: err.message }); }
+app.post('/api/settings', async (req, res) => {
+  try {
+    if (USE_MONGO) {
+      await Settings.findOneAndUpdate({}, req.body, { upsert: true });
+      return res.json({ success: true });
+    }
+    writeJSON(SETTINGS_FILE, req.body);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/order', (req, res) => {
+// ==================== Order API ====================
+
+app.post('/api/order', async (req, res) => {
   try {
     const { name, phone, address, notes, items, total } = req.body;
-    const settings = readJSON(SETTINGS_FILE);
+    let settings;
+    if (USE_MONGO) {
+      settings = await getMongoSettings();
+    } else {
+      settings = readJSON(SETTINGS_FILE);
+    }
     const adminPhone = settings.whatsappNumber;
     const apiKey = settings.callmebotApiKey;
 
@@ -90,10 +144,14 @@ app.post('/api/order', (req, res) => {
       status: 'جديد'
     };
 
-    // Save order to orders log
-    const orders = readJSON(ORDERS_FILE);
-    orders.unshift(order);
-    writeJSON(ORDERS_FILE, orders);
+    // Save order
+    if (USE_MONGO) {
+      await Order.create(order);
+    } else {
+      const orders = readJSON(ORDERS_FILE);
+      orders.unshift(order);
+      writeJSON(ORDERS_FILE, orders);
+    }
     console.log(`[ORDER] #${order.id} — ${name} — ${total} JOD`);
 
     // Build WhatsApp message
@@ -122,10 +180,8 @@ app.post('/api/order', (req, res) => {
 
     const fallbackUrl = `https://wa.me/${adminPhone || '962792067277'}?text=${encodeURIComponent(whatsappMessage)}`;
 
-    // Respond immediately so the client doesn't time out
     res.json({ success: true, method: 'callmebot', sent: false, orderId: order.id, fallbackUrl, adminPhone: adminPhone || '962792067277' });
 
-    // Try CallMeBot in background (non-blocking, fire-and-forget)
     if (adminPhone && apiKey) {
       const callmebotUrl = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(adminPhone)}&text=${encodeURIComponent(whatsappMessage)}&apikey=${encodeURIComponent(apiKey)}`;
       fetch(callmebotUrl).catch(() => {});
@@ -134,13 +190,22 @@ app.post('/api/order', (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.get('/api/orders', (req, res) => {
-  try { res.json(readJSON(ORDERS_FILE)); }
-  catch { res.json([]); }
+app.get('/api/orders', async (req, res) => {
+  try {
+    if (USE_MONGO) {
+      const orders = await Order.find().sort({ id: -1 }).lean();
+      return res.json(orders);
+    }
+    res.json(readJSON(ORDERS_FILE));
+  } catch { res.json([]); }
 });
 
-app.put('/api/orders/:id', (req, res) => {
+app.put('/api/orders/:id', async (req, res) => {
   try {
+    if (USE_MONGO) {
+      await Order.findOneAndUpdate({ id: req.params.id }, req.body);
+      return res.json({ success: true });
+    }
     const orders = readJSON(ORDERS_FILE);
     const idx = orders.findIndex(o => o.id == req.params.id);
     if (idx === -1) return res.status(404).json({ error: 'Order not found' });
@@ -150,14 +215,24 @@ app.put('/api/orders/:id', (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Notify customer via CallMeBot when order status changes
-app.post('/api/orders/:id/notify', (req, res) => {
+// Notify customer via CallMeBot
+app.post('/api/orders/:id/notify', async (req, res) => {
   try {
-    const orders = readJSON(ORDERS_FILE);
-    const order = orders.find(o => o.id == req.params.id);
+    let order;
+    if (USE_MONGO) {
+      order = await Order.findOne({ id: req.params.id }).lean();
+    } else {
+      const orders = readJSON(ORDERS_FILE);
+      order = orders.find(o => o.id == req.params.id);
+    }
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
-    const settings = readJSON(SETTINGS_FILE);
+    let settings;
+    if (USE_MONGO) {
+      settings = await getMongoSettings();
+    } else {
+      settings = readJSON(SETTINGS_FILE);
+    }
     const apiKey = settings.callmebotApiKey;
 
     if (!apiKey || !order.phone) {
@@ -194,10 +269,15 @@ app.post('/api/orders/:id/notify', (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// PDF Report — returns HTML table for printing
-app.get('/api/orders/report', (req, res) => {
+// PDF Report
+app.get('/api/orders/report', async (req, res) => {
   try {
-    const orders = readJSON(ORDERS_FILE);
+    let orders;
+    if (USE_MONGO) {
+      orders = await Order.find().sort({ id: -1 }).lean();
+    } else {
+      orders = readJSON(ORDERS_FILE);
+    }
     let totalRevenue = 0;
     const rows = orders.map(o => {
       totalRevenue += parseFloat(o.total) || 0;
@@ -239,12 +319,38 @@ app.get('/api/orders/report', (req, res) => {
   } catch (err) { res.status(500).send(err.message); }
 });
 
-app.listen(PORT, () => {
-  console.log(`\n  🌿 Qronfol Store Server`);
-  console.log(`  ─────────────────────`);
-  console.log(`  🏪  المتجر:  http://localhost:${PORT}`);
-  console.log(`  ⚙️  الأدمن:  http://localhost:${PORT}/admin.html`);
-  console.log(`  📡 API:     http://localhost:${PORT}/api/products`);
-  console.log(`  📡 Orders:  http://localhost:${PORT}/api/orders`);
-  console.log(`\n`);
-});
+// ==================== Start Server ====================
+
+async function start() {
+  if (USE_MONGO) {
+    try {
+      await mongoose.connect(MONGODB_URI);
+      console.log('  🍃 MongoDB connected');
+    } catch (err) {
+      console.error('  ❌ MongoDB connection failed:', err.message);
+      console.log('  ⚠️  Falling back to JSON file storage');
+      process.exit(1);
+    }
+  }
+
+  if (!USE_MONGO) {
+    try {
+      if (!fs.existsSync(DATA_FILE)) writeJSON(DATA_FILE, getDefaultProducts());
+      if (!fs.existsSync(SETTINGS_FILE)) writeJSON(SETTINGS_FILE, { whatsappNumber: '', callmebotApiKey: '', shippingCost: 0, freeShippingOver: 0 });
+      if (!fs.existsSync(ORDERS_FILE)) writeJSON(ORDERS_FILE, []);
+    } catch {}
+  }
+
+  app.listen(PORT, () => {
+    console.log(`\n  🌿 Qronfol Store Server`);
+    console.log(`  ─────────────────────`);
+    console.log(`  🏪  المتجر:  http://localhost:${PORT}`);
+    console.log(`  ⚙️  الأدمن:  http://localhost:${PORT}/admin.html`);
+    console.log(`  📡 API:     http://localhost:${PORT}/api/products`);
+    console.log(`  📡 Orders:  http://localhost:${PORT}/api/orders`);
+    console.log(`  📦 Storage: ${USE_MONGO ? 'MongoDB Atlas' : 'Local JSON files'}`);
+    console.log(`\n`);
+  });
+}
+
+start();
