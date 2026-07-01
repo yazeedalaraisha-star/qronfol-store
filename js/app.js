@@ -131,7 +131,7 @@ function initProducts() {
       const url = encodeURIComponent(window.location.origin + '/?product=' + p.id);
       const text = encodeURIComponent(`🌿 ${p.title} - ${formatPrice(p.price)}`);
       return `
-        <div class="product-share">
+        <div class="product-share" onclick="event.stopPropagation()">
           <a href="https://wa.me/?text=${text}%20${url}" target="_blank" title="مشاركة على واتساب"><i class="fab fa-whatsapp"></i></a>
           <a href="https://www.facebook.com/sharer/sharer.php?u=${url}" target="_blank" title="مشاركة على فيسبوك"><i class="fab fa-facebook"></i></a>
         </div>`;
@@ -148,14 +148,14 @@ function initProducts() {
       const isOutOfStock = product.stock === 0;
       const addBtnHtml = isOutOfStock
         ? `<span class="out-of-stock-badge">نفذ من المخزون</span>`
-        : `<button class="add-to-cart-btn" onclick="handleAddToCart(${product.id})" title="أضف إلى السلة"><i class="fas fa-plus"></i></button>`;
+        : `<button class="add-to-cart-btn" onclick="event.stopPropagation();handleAddToCart(${product.id})" title="أضف إلى السلة"><i class="fas fa-plus"></i></button>`;
 
       const tagsHtml = (product.tags && product.tags.length)
         ? `<div class="product-tags">${product.tags.map(t => `<span class="product-tag">${TAG_LABELS[t] || t}</span>`).join('')}</div>`
         : '';
 
       return `
-        <div class="product-card" data-id="${product.id}">
+        <div class="product-card" data-id="${product.id}" onclick="window.location.href='/product.html?id=${product.id}'" style="cursor:pointer">
           <div class="product-image">
             ${imageHtml}
             ${badgeLabel ? `<span class="product-badge ${badgeClass}">${badgeLabel}</span>` : ''}
@@ -164,7 +164,7 @@ function initProducts() {
           <div class="product-body">
             <span class="product-category">${CATEGORIES[product.category] || product.category}</span>
             <h3 class="product-title" title="${product.titleEn || ''}">${product.title}</h3>
-                ${tagsHtml}
+            ${tagsHtml}
             <p class="product-description">${product.description}</p>
             <div class="product-footer">
               <span class="product-price">${oldPriceHtml}${formatPrice(product.price)}</span>
@@ -173,7 +173,7 @@ function initProducts() {
               </div>
             </div>
             <div class="product-actions">
-              ${(product.story && product.story.length) ? `<button class="story-btn" onclick="openStory(${product.id})"><i class="fas fa-book-open"></i> القصة</button>` : ''}
+              ${(product.story && product.story.length) ? `<button class="story-btn" onclick="event.stopPropagation();openStory(${product.id})"><i class="fas fa-book-open"></i> القصة</button>` : ''}
               ${shareProduct(product)}
             </div>
           </div>
@@ -200,14 +200,14 @@ function initProducts() {
       const imageHtml = p.image
         ? `<img src="${p.image}" alt="${p.title}" class="product-img" onerror="this.style.display='none'">`
         : `<div class="product-image-placeholder"><i class="${p.icon || 'fa-solid fa-box'}"></i></div>`;
-      return `<div class="product-card" data-id="${p.id}">
+      return `<div class="product-card" data-id="${p.id}" onclick="window.location.href='/product.html?id=${p.id}'" style="cursor:pointer">
         <div class="product-image">${imageHtml}</div>
         <div class="product-body">
           <span class="product-category">${CATEGORIES[p.category] || p.category}</span>
           <h3 class="product-title">${p.title}</h3>
           <div class="product-footer">
             <span class="product-price">${formatPrice(p.price)}</span>
-            <button class="add-to-cart-btn" onclick="handleAddToCart(${p.id})"><i class="fas fa-plus"></i></button>
+            <button class="add-to-cart-btn" onclick="event.stopPropagation();handleAddToCart(${p.id})"><i class="fas fa-plus"></i></button>
           </div>
         </div>
       </div>`;

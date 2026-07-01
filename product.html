@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>قرنفل | Qronfol</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .product-page { padding: 32px 0; }
+    .product-page-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+    .product-page-image { border-radius: var(--radius); overflow: hidden; background: var(--cream); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: sticky; top: 100px; }
+    .product-page-image img { width: 100%; height: 100%; object-fit: cover; }
+    .product-page-image .product-image-placeholder { font-size: 80px; color: var(--gold); }
+    .product-page-info h1 { font-family: var(--font-heading); font-size: 28px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px; }
+    .product-page-info .product-en-title { color: var(--text-light); font-size: 14px; margin-bottom: 12px; }
+    .product-page-info .product-cat { display: inline-block; padding: 4px 12px; background: var(--cream); border-radius: 50px; font-size: 12px; font-weight: 600; color: var(--text-mid); margin-bottom: 16px; }
+    .product-page-info .product-desc { color: var(--text-mid); line-height: 1.8; font-size: 15px; margin-bottom: 20px; }
+    .product-page-info .product-price-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .product-page-info .product-price-row .price { font-size: 28px; font-weight: 800; color: var(--green-dark); }
+    .product-page-info .product-price-row .old-price { font-size: 18px; color: var(--text-light); text-decoration: line-through; }
+    .product-page-info .product-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+    .product-page-info .product-tag { padding: 4px 10px; background: var(--bg-light); border-radius: 50px; font-size: 12px; color: var(--text-mid); }
+    .product-page-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+    .product-page-actions .btn-primary { padding: 14px 32px; font-size: 16px; }
+    .product-page-share { display: flex; gap: 8px; align-items: center; }
+    .product-page-share a { width: 40px; height: 40px; border-radius: 50%; background: var(--bg-light); display: flex; align-items: center; justify-content: center; color: var(--text-mid); font-size: 18px; transition: var(--transition); }
+    .product-page-share a:hover { background: var(--green-mid); color: white; }
+
+    /* Story section embedded in page */
+    .product-story-section { margin-top: 32px; padding: 24px; background: var(--bg-light); border-radius: var(--radius); }
+    .product-story-section h2 { font-family: var(--font-heading); font-size: 20px; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; }
+    .story-slide-embed { background: white; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 16px; box-shadow: var(--shadow); }
+    .story-slide-embed img, .story-slide-embed video { width: 100%; max-height: 400px; object-fit: contain; background: #111; display: block; }
+    .story-slide-embed .story-text-embed { padding: 32px; font-size: 18px; line-height: 2; color: var(--text-dark); text-align: center; }
+    .story-slide-embed .story-caption-embed { padding: 8px 16px 12px; color: var(--text-light); font-size: 13px; text-align: center; }
+
+    .product-page-badge { display: inline-block; padding: 4px 14px; border-radius: 50px; font-size: 12px; font-weight: 700; }
+    .product-page-badge.best { background: #fef3c7; color: #92400e; }
+    .product-page-badge.sale { background: #fee2e2; color: #991b1b; }
+    .product-page-badge.new { background: #d1fae5; color: #065f46; }
+
+    .product-page-loading { text-align: center; padding: 60px 20px; }
+    .product-page-loading .spinner { width: 40px; height: 40px; border: 4px solid var(--cream); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+    .product-page-error { text-align: center; padding: 60px 20px; }
+    .product-page-error h2 { font-size: 24px; color: var(--text-dark); margin-bottom: 8px; }
+    .product-page-error p { color: var(--text-light); margin-bottom: 20px; }
+
+    .product-stock-status { font-size: 14px; margin-bottom: 16px; }
+    .product-stock-status.in-stock { color: var(--green-mid); }
+    .product-stock-status.out-of-stock { color: var(--palestine-red); font-weight: 700; }
+
+    .product-back-link { display: inline-flex; align-items: center; gap: 8px; color: var(--text-light); font-size: 14px; transition: var(--transition); }
+    .product-back-link:hover { color: var(--green-mid); }
+
+    @media (max-width: 768px) {
+      .product-page-layout { grid-template-columns: 1fr; gap: 24px; }
+      .product-page-image { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container header-inner">
+      <div class="logo">
+        <a href="/">
+          <h1>قرنفل</h1>
+          <span class="logo-sub">Qronfol</span>
+        </a>
+      </div>
+      <nav class="nav">
+        <a href="/" class="nav-link">المنتجات</a>
+      </nav>
+      <div class="header-actions">
+        <button class="cart-btn" id="cartBtn" aria-label="عربة التسوق">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container product-page" id="productPage">
+    <a href="/" class="product-back-link"><i class="fas fa-arrow-right"></i> العودة للمتجر</a>
+    <div id="productContent"></div>
+  </div>
+
+  <!-- Related Products -->
+  <div class="container" id="relatedSection" style="display:none;padding-bottom:48px">
+    <div class="section-header">
+      <h2>منتجات قد تعجبك</h2>
+      <p>اقتراحات من نفس التصنيف</p>
+    </div>
+    <div class="products-grid" id="relatedGrid"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-brand">
+        <h3>قرنفل</h3>
+        <p>خيطٌ من تراث .. وقلبٌ مع غزة 💚🇵🇸</p>
+        <p class="footer-copyright">© قرنفل | جميع الحقوق محفوظة</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3>عربة التسوق</h3>
+      <button class="cart-close" id="cartClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty">
+        <i class="fas fa-shopping-bag"></i>
+        <p>عربة التسوق فارغة</p>
+        <span>أضف منتجات لتتمكن من الطلب</span>
+      </div>
+    </div>
+    <div class="cart-footer" id="cartFooter" style="display:none">
+      <div class="cart-total">
+        <span>المجموع</span>
+        <span class="total-amount" id="cartTotal">0 JOD</span>
+      </div>
+      <button class="btn-primary btn-checkout" id="checkoutBtn">
+        <i class="fab fa-whatsapp"></i>
+        إتمام الطلب عبر واتساب
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">تمت الإضافة إلى السلة!</span>
+  </div>
+
+  <script src="js/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script>
+    const CATEGORIES = { all: 'الكل', accessories: 'إكسسوارات', embroidery: 'تطريز', decor: 'ديكور', apparel: 'أزياء' };
+    const BADGE_LABELS = { new: 'جديد', sale: 'تخفيض', best: 'الأكثر مبيعاً' };
+    const TAG_LABELS = { gift: '🎁 هدية', sale: '🔥 مخفض', free_shipping: '🚚 توصيل مجاني', limited: '⏳ كمية محدودة', handmade: '✋ صنع يدوي' };
+    const API_URL = window.location.origin + '/api/products';
+
+    function formatPrice(price) { return price.toFixed(2) + ' JOD'; }
+    function getProductIcon(icon) { return icon || 'fa-solid fa-box'; }
+
+    const params = new URLSearchParams(window.location.search);
+    const productId = parseInt(params.get('id'));
+
+    let currentProduct = null;
+
+    async function loadProduct() {
+      const content = document.getElementById('productContent');
+      content.innerHTML = '<div class="product-page-loading"><div class="spinner"></div><p>جاري تحميل المنتج...</p></div>';
+
+      try {
+        const res = await fetch(API_URL);
+        const products = await res.json();
+        currentProduct = products.find(p => p.id === productId);
+
+        if (!currentProduct) throw new Error('Product not found');
+
+        document.title = currentProduct.title + ' - قرنفل';
+        renderProduct(currentProduct);
+        renderRelated(currentProduct);
+
+      } catch (e) {
+        content.innerHTML = `
+          <div class="product-page-error">
+            <h2>المنتج غير موجود</h2>
+            <p>عذراً، لم نتمكن من العثور على هذا المنتج</p>
+            <a href="/" class="btn-primary"><i class="fas fa-arrow-right"></i> العودة للمتجر</a>
+          </div>`;
+      }
+    }
+
+    function renderProduct(p) {
+      const storyHtml = (p.story && p.story.length)
+        ? `<div class="product-story-section">
+            <h2><i class="fas fa-book-open" style="color:var(--gold)"></i> قصة المنتج</h2>
+            ${p.story.map(s => {
+              if (s.type === 'image') return `<div class="story-slide-embed"><img src="${s.url}" alt="" onerror="this.outerHTML='<div style=text-align:center;padding:40px;color:var(--text-light)>⚠️ الصورة غير متوفرة</div>'"><div class="story-caption-embed">${s.caption || ''}</div></div>`;
+              if (s.type === 'video') return `<div class="story-slide-embed"><video src="${s.url}" controls playsinline style="width:100%;max-height:400px;background:#111" onerror="this.outerHTML='<div style=text-align:center;padding:40px;color:var(--text-light)>⚠️ الفيديو غير متوفر</div>'"></video><div class="story-caption-embed">${s.caption || ''}</div></div>`;
+              if (s.type === 'text') return `<div class="story-slide-embed"><div class="story-text-embed">${(s.content || '').replace(/\n/g, '<br>')}</div></div>`;
+              return '';
+            }).join('')}
+          </div>`
+        : '';
+
+      const imageHtml = p.image
+        ? `<img src="${p.image}" alt="${p.title}" onerror="this.outerHTML='<div class=product-image-placeholder><i class=\\'${getProductIcon(p.icon)}\\'></i></div>'">`
+        : `<div class="product-image-placeholder"><i class="${getProductIcon(p.icon)}"></i></div>`;
+
+      const badgeHtml = p.badge ? `<span class="product-page-badge ${p.badge}">${BADGE_LABELS[p.badge] || p.badge}</span>` : '';
+      const oldPriceHtml = p.oldPrice ? `<span class="old-price">${formatPrice(p.oldPrice)}</span>` : '';
+      const stockHtml = p.stock === 0
+        ? '<div class="product-stock-status out-of-stock">نفذ من المخزون</div>'
+        : '<div class="product-stock-status in-stock"><i class="fas fa-check-circle"></i> متوفر</div>';
+      const tagsHtml = (p.tags && p.tags.length)
+        ? `<div class="product-tags">${p.tags.map(t => `<span class="product-tag">${TAG_LABELS[t] || t}</span>`).join('')}</div>`
+        : '';
+      const addBtnHtml = p.stock === 0
+        ? `<span class="out-of-stock-badge" style="padding:14px 32px;background:var(--bg-light);border-radius:var(--radius-sm);color:var(--text-light);font-weight:700">نفذ من المخزون</span>`
+        : `<button class="btn-primary" onclick="handleAddToCart(${p.id})"><i class="fas fa-plus"></i> أضف إلى السلة</button>`;
+      const whatsappShare = encodeURIComponent(window.location.origin + '/product.html?id=' + p.id);
+      const shareText = encodeURIComponent(`🌿 ${p.title} - ${formatPrice(p.price)}`);
+
+      content.innerHTML = `
+        <div class="product-page-layout">
+          <div class="product-page-image">
+            ${imageHtml}
+          </div>
+          <div class="product-page-info">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span class="product-cat">${CATEGORIES[p.category] || p.category}</span>
+              ${badgeHtml}
+            </div>
+            <h1>${p.title}</h1>
+            ${p.titleEn ? `<div class="product-en-title">${p.titleEn}</div>` : ''}
+            <div class="product-price-row">
+              <span class="price">${formatPrice(p.price)}</span>
+              ${oldPriceHtml}
+            </div>
+            ${stockHtml}
+            ${tagsHtml}
+            <p class="product-desc">${p.description || 'لا يوجد وصف'}</p>
+
+            <div class="product-page-actions">
+              ${addBtnHtml}
+            </div>
+
+            <div class="product-page-share">
+              <span style="color:var(--text-light);font-size:13px">مشاركة:</span>
+              <a href="https://wa.me/?text=${shareText}%20${whatsappShare}" target="_blank" title="مشاركة على واتساب"><i class="fab fa-whatsapp"></i></a>
+              <a href="https://www.facebook.com/sharer/sharer.php?u=${whatsappShare}" target="_blank" title="مشاركة على فيسبوك"><i class="fab fa-facebook"></i></a>
+            </div>
+          </div>
+        </div>
+        ${storyHtml}`;
+    }
+
+    function renderRelated(p) {
+      const section = document.getElementById('relatedSection');
+      const grid = document.getElementById('relatedGrid');
+      fetch(API_URL).then(r => r.json()).then(products => {
+        let candidates = products.filter(x => x.category === p.category && x.id !== p.id);
+        if (candidates.length === 0) candidates = products.filter(x => x.id !== p.id);
+        const related = candidates.slice(0, 4);
+        if (related.length === 0) { section.style.display = 'none'; return; }
+        section.style.display = 'block';
+        grid.innerHTML = related.map(x => {
+          const img = x.image
+            ? `<img src="${x.image}" alt="${x.title}" class="product-img" onerror="this.style.display='none'">`
+            : `<div class="product-image-placeholder"><i class="${getProductIcon(x.icon)}"></i></div>`;
+          return `<div class="product-card" onclick="window.location.href='/product.html?id=${x.id}'">
+            <div class="product-image">${img}</div>
+            <div class="product-body">
+              <span class="product-category">${CATEGORIES[x.category] || x.category}</span>
+              <h3 class="product-title">${x.title}</h3>
+              <div class="product-footer">
+                <span class="product-price">${formatPrice(x.price)}</span>
+                <button class="add-to-cart-btn" onclick="event.stopPropagation();handleAddToCart(${x.id})"><i class="fas fa-plus"></i></button>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+      }).catch(() => { section.style.display = 'none'; });
+    }
+
+    function handleAddToCart(id) {
+      const product = currentProduct && currentProduct.id === id ? currentProduct : null;
+      if (!product) { const p = fetch(API_URL).then(r => r.json()).then(ps => { const prod = ps.find(x => x.id === id); if (prod) addToCart(prod); }); return; }
+      addToCart(product);
+    }
+
+    function addToCart(product) {
+      if (!cart) { import('./js/cart.js').then(() => addToCart(product)); return; }
+      if (typeof cart === 'undefined') { setTimeout(() => addToCart(product), 200); return; }
+      try {
+        cart.addItem(product);
+        updateCartUI();
+        showToast('تمت إضافة "' + product.title + '" إلى السلة!');
+      } catch(e) { console.error(e); }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const msgEl = document.getElementById('toastMessage');
+      if (!toast || !msgEl) return;
+      msgEl.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function updateCartUI() {
+      if (typeof cart !== 'undefined') {
+        document.getElementById('cartCount').textContent = cart.getItems().reduce((s, i) => s + i.quantity, 0);
+      }
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProduct();
+      updateCartUI();
+    });
+
+    // Cart from products.js
+    document.getElementById('cartBtn').addEventListener('click', () => {
+      document.getElementById('cartSidebar').classList.toggle('open');
+      document.getElementById('cartOverlay').classList.toggle('open');
+    });
+    document.getElementById('cartClose').addEventListener('click', () => {
+      document.getElementById('cartSidebar').classList.remove('open');
+      document.getElementById('cartOverlay').classList.remove('open');
+    });
+    document.getElementById('cartOverlay').addEventListener('click', () => {
+      document.getElementById('cartSidebar').classList.remove('open');
+      document.getElementById('cartOverlay').classList.remove('open');
+    });
+  </script>
+</body>
+</html>
