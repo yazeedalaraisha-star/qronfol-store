@@ -320,6 +320,7 @@ async function submitCheckout(e) {
       document.getElementById('checkoutOverlay').classList.remove('open');
       document.body.style.overflow = '';
 
+      // Save order in session for reference if customer returns
       sessionStorage.setItem('lastOrder', JSON.stringify({
         id: data.orderId,
         name, phone, address, notes,
@@ -330,12 +331,12 @@ async function submitCheckout(e) {
 
       cart.clear();
 
-      // Open WhatsApp so customer can send order to admin manually
+      // Redirect customer directly to WhatsApp with order details
       if (data.fallbackUrl) {
-        window.open(data.fallbackUrl, '_blank');
+        window.location.href = data.fallbackUrl;
+      } else {
+        window.location.href = '/order-confirmed.html?id=' + data.orderId;
       }
-
-      window.location.href = '/order-confirmed.html?id=' + data.orderId;
     } else {
       const errText = await res.text().catch(() => '');
       console.error('Server error:', res.status, errText);
