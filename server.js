@@ -15,7 +15,7 @@ const USE_MONGO = !!MONGODB_URI;
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(__dirname));
+app.use(express.static(__dirname, { maxAge: '1h', etag: true }));
 
 if (!fs.existsSync(path.join(__dirname, 'data'))) {
   fs.mkdirSync(path.join(__dirname, 'data'));
@@ -80,11 +80,27 @@ async function getMongoSettings() {
   return s;
 }
 
+// ==================== Cache ====================
+let productsCache = null;
+let productsCacheTime = 0;
+const CACHE_TTL = 5000;
+
+// ==================== Health Check ====================
+app.get('/health', (req, res) => res.json({ ok: true, mongo: USE_MONGO }));
+
 // ==================== Products API ====================
 
 app.get('/api/products', async (req, res) => {
   try {
-    if (USE_MONGO) return res.json(await getMongoProducts());
+    if (USE_MONGO) {
+      // Simple cache: products rarely change, cache for 5s
+      if (productsCache && Date.now() - productsCacheTime < CACHE_TTL) {
+        return res.json(productsCache);
+      }
+      productsCache = await getMongoProducts();
+      productsCacheTime = Date.now();
+      return res.json(productsCache);
+    }
     res.json(readJSON(DATA_FILE));
   } catch { res.json(getDefaultProducts()); }
 });
@@ -96,6 +112,7 @@ app.post('/api/products', async (req, res) => {
     if (USE_MONGO) {
       await Product.deleteMany({});
       await Product.insertMany(products);
+      productsCache = null; // invalidate cache
       return res.json({ success: true });
     }
     writeJSON(DATA_FILE, products);
@@ -324,11 +341,16 @@ app.get('/api/orders/report', async (req, res) => {
 async function start() {
   if (USE_MONGO) {
     try {
-      await mongoose.connect(MONGODB_URI);
+      mongoose.set('strictQuery', false);
+      await mongoose.connect(MONGODB_URI, {
+        serverSelectionTimeoutMS: 5000,
+        connectTimeoutMS: 5000,
+        socketTimeoutMS: 30000,
+        maxPoolSize: 5
+      });
       console.log('  🍃 MongoDB connected');
     } catch (err) {
       console.error('  ❌ MongoDB connection failed:', err.message);
-      console.log('  ⚠️  Falling back to JSON file storage');
       process.exit(1);
     }
   }
