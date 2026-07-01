@@ -64,17 +64,7 @@
       const params = new URLSearchParams(window.location.search);
       const orderId = params.get('id');
 
-      if (order && String(order.id) === orderId) {
-        document.getElementById('orderId').textContent = '#' + order.id;
-        document.getElementById('orderName').textContent = order.name;
-        document.getElementById('orderPhone').textContent = order.phone;
-        document.getElementById('orderAddress').textContent = order.address;
-        document.getElementById('orderDate').textContent = new Date(order.createdAt).toLocaleDateString('ar') + ' ' + new Date(order.createdAt).toLocaleTimeString('ar');
-        document.getElementById('orderItems').innerHTML = '<h3>المنتجات</h3>' +
-          order.items.map(i => `<div class="conf-item"><span>${i.title}</span><span>×${i.quantity} = ${(i.price * i.quantity).toFixed(2)} JOD</span></div>`).join('');
-        document.getElementById('orderTotal').textContent = order.total + ' JOD';
-        sessionStorage.removeItem('lastOrder');
-      } else if (order && !orderId) {
+      if (order && (!orderId || String(order.id) === orderId)) {
         document.getElementById('orderId').textContent = '#' + order.id;
         document.getElementById('orderName').textContent = order.name;
         document.getElementById('orderPhone').textContent = order.phone;
