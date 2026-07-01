@@ -353,6 +353,9 @@
       const titles = { products: 'إدارة المنتجات', orders: 'الطلبات', settings: 'الإعدادات' };
       document.getElementById('pageTitle').textContent = titles[name] || 'لوحة التحكم';
       if (name === 'orders') {
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission();
+        }
         renderOrders();
         if (ordersRefreshTimer) clearInterval(ordersRefreshTimer);
         ordersRefreshTimer = setInterval(renderOrders, 15000);
@@ -505,6 +508,22 @@
     // ==================== ORDERS ====================
 
     let ordersRefreshTimer = null;
+    let lastOrderCount = 0;
+
+    function playAlert() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 800;
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.6);
+      } catch {}
+    }
 
     async function renderOrders() {
       try {
@@ -523,6 +542,14 @@
         let totalRevenue = 0, newCount = 0, deliveredCount = 0;
         orders.forEach(o => { totalRevenue += parseFloat(o.total) || 0; if (o.status === 'جديد') newCount++; if (o.status === 'تم التوصيل') deliveredCount++; });
 
+        // Play alert if new order arrived
+        if (orders.length > lastOrderCount && lastOrderCount > 0) {
+          playAlert();
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('📦 طلب جديد في قرنفل!', { body: `تم استلام طلب جديد. العدد الإجمالي: ${orders.length}` });
+          }
+        }
+        lastOrderCount = orders.length;
         document.getElementById('orderStatTotal').textContent = orders.length;
         document.getElementById('orderStatRevenue').textContent = totalRevenue.toFixed(2) + ' JOD';
         document.getElementById('orderStatNew').textContent = newCount;

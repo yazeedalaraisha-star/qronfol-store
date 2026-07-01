@@ -94,6 +94,7 @@ app.post('/api/order', (req, res) => {
     const orders = readJSON(ORDERS_FILE);
     orders.unshift(order);
     writeJSON(ORDERS_FILE, orders);
+    console.log(`[ORDER] #${order.id} — ${name} — ${total} JOD`);
 
     // Build WhatsApp message
     const orderItems = items.map(item =>
