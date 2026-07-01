@@ -623,8 +623,28 @@
     }
 
     function buildWhatsAppMessage(order) {
-      const items = (order.items || []).map(i => `• ${i.title} x${i.quantity} = ${(i.price * i.quantity).toFixed(2)} JOD`).join('\n');
-      return `🆔 *رقم الطلب: ${order.id}*\n🌿 *طلب جديد من قرنفل* 🌿\n━━━━━━━━━━━━━━━━\n👤 الاسم: ${order.name}\n📞 الهاتف: ${order.phone}\n📍 العنوان: ${order.address}\n━━━━━━━━━━━━━━━━\n*المنتجات:*\n${items}\n━━━━━━━━━━━━━━━━\n💵 *المجموع:* ${order.total} JOD`;
+      const date = new Date(order.createdAt).toLocaleString('ar', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const items = (order.items || []).map(i =>
+        `🛒 ${i.title}\n   ${i.quantity} × ${i.price.toFixed(2)} JOD = ${(i.price * i.quantity).toFixed(2)} JOD`
+      ).join('\n');
+      let msg = `🌿 *قرنفل — طلب جديد* 🌿\n`;
+      msg += `━━━━━━━━━━━━━━━━\n`;
+      msg += `🆔 *رقم الطلب:* #${order.id}\n`;
+      msg += `📅 *التاريخ:* ${date}\n`;
+      msg += `━━━━━━━━━━━━━━━━\n`;
+      msg += `👤 *العميل:* ${order.name}\n`;
+      msg += `📞 *الهاتف:* ${order.phone}\n`;
+      msg += `📍 *العنوان:* ${order.address}\n`;
+      if (order.notes) msg += `📝 *ملاحظات:* ${order.notes}\n`;
+      msg += `━━━━━━━━━━━━━━━━\n`;
+      msg += `*المنتجات:*\n${items}\n`;
+      msg += `━━━━━━━━━━━━━━━━\n`;
+      msg += `💵 *الإجمالي:* ${order.total} JOD\n`;
+      msg += `━━━━━━━━━━━━━━━━\n`;
+      msg += `✅ *الحالة:* ${order.status}\n`;
+      msg += `━━━━━━━━━━━━━━━━\n`;
+      msg += `🌐 قرنفل — متجر التراث الفلسطيني`;
+      return msg;
     }
 
     async function sendOrderToWhatsApp(orderId) {
@@ -644,10 +664,24 @@
         const orders = await (await fetch('/api/orders')).json();
         const newOrders = orders.filter(o => o.status === 'جديد');
         if (!newOrders.length) { alert('لا توجد طلبات جديدة'); return; }
-        const msg = newOrders.map((o, i) =>
-          `━━━━━━━━━━━━━━━━\n*طلب #${o.id}*\n👤 ${o.name}\n📞 ${o.phone}\n📍 ${o.address}\n📦 ${(o.items||[]).map(it => `${it.title} x${it.quantity}`).join(', ')}\n💵 ${o.total} JOD`
-        ).join('\n');
-        openWhatsApp(`🌿 *طلبات قرنفل الجديدة* 🌿\nعدد الطلبات: ${newOrders.length}\n${msg}\n━━━━━━━━━━━━━━━━`);
+        const date = new Date().toLocaleString('ar', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        let msg = `🌿 *قرنفل — الطلبات الجديدة* 🌿\n`;
+        msg += `📅 ${date}\n`;
+        msg += `━━━━━━━━━━━━━━━━\n`;
+        msg += `عدد الطلبات: ${newOrders.length}\n\n`;
+        newOrders.forEach((o, i) => {
+          msg += `━━━━━━━━━━━━━━━━\n`;
+          msg += `*طلب #${o.id}*\n`;
+          msg += `👤 ${o.name}\n📞 ${o.phone}\n📍 ${o.address}\n`;
+          (o.items || []).forEach(it => {
+            msg += `🛒 ${it.title} — ${it.quantity} × ${it.price.toFixed(2)} = ${(it.price * it.quantity).toFixed(2)} JOD\n`;
+          });
+          if (o.notes) msg += `📝 ${o.notes}\n`;
+          msg += `💵 *المجموع:* ${o.total} JOD\n`;
+        });
+        msg += `━━━━━━━━━━━━━━━━\n`;
+        msg += `🌐 قرنفل — متجر التراث الفلسطيني`;
+        openWhatsApp(msg);
       } catch { alert('تعذر تحميل الطلبات'); }
     }
 

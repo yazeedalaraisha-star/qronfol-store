@@ -98,23 +98,27 @@ app.post('/api/order', (req, res) => {
 
     // Build WhatsApp message
     const orderItems = items.map(item =>
-      `• ${item.title} x${item.quantity} = ${(item.price * item.quantity).toFixed(2)} JOD`
+      `🛒 ${item.title}\n   ${item.quantity} × ${item.price.toFixed(2)} JOD = ${(item.price * item.quantity).toFixed(2)} JOD`
     ).join('\n');
 
     const whatsappMessage =
-      `🆔 *رقم الطلب: ${order.id}*\n` +
-      '🌿 *طلب جديد من قرنفل* 🌿\n' +
-      '━━━━━━━━━━━━━━━━\n' +
-      '*معلومات العميل:*\n' +
-      `👤 الاسم: ${name}\n` +
-      `📞 الهاتف: ${phone}\n` +
-      `📍 العنوان: ${address}\n` +
-      (notes ? `📝 ملاحظات: ${notes}\n` : '') +
-      '━━━━━━━━━━━━━━━━\n' +
-      '*المنتجات:*\n' +
-      orderItems + '\n' +
-      '━━━━━━━━━━━━━━━━\n' +
-      `💵 *المجموع:* ${total} JOD`;
+      `🌿 *قرنفل — طلب جديد* 🌿\n` +
+      `━━━━━━━━━━━━━━━━\n` +
+      `🆔 *رقم الطلب:* #${order.id}\n` +
+      `📅 *التاريخ:* ${new Date().toLocaleString('ar', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}\n` +
+      `━━━━━━━━━━━━━━━━\n` +
+      `👤 *العميل:* ${name}\n` +
+      `📞 *الهاتف:* ${phone}\n` +
+      `📍 *العنوان:* ${address}\n` +
+      (notes ? `📝 *ملاحظات:* ${notes}\n` : '') +
+      `━━━━━━━━━━━━━━━━\n` +
+      `*المنتجات:*\n${orderItems}\n` +
+      `━━━━━━━━━━━━━━━━\n` +
+      `💵 *الإجمالي:* ${total} JOD\n` +
+      `━━━━━━━━━━━━━━━━\n` +
+      `✅ *الحالة:* جديد\n` +
+      `━━━━━━━━━━━━━━━━\n` +
+      `🌐 قرنفل — متجر التراث الفلسطيني`;
 
     const fallbackUrl = `https://wa.me/${adminPhone || '962792067277'}?text=${encodeURIComponent(whatsappMessage)}`;
 
@@ -160,12 +164,24 @@ app.post('/api/orders/:id/notify', (req, res) => {
       return res.json({ success: false, error: 'No API key or customer phone' });
     }
 
+    const items = (order.items || []).map(i =>
+      `🛒 ${i.title}\n   ${i.quantity} × ${i.price.toFixed(2)} JOD = ${(i.price * i.quantity).toFixed(2)} JOD`
+    ).join('\n');
     const message =
-      `🌿 *قرنفل - تحديث الطلب #${order.id}* 🌿\n` +
+      `🌿 *قرنفل — تحديث الطلب #${order.id}* 🌿\n` +
+      `━━━━━━━━━━━━━━━━\n` +
+      `👤 *العميل:* ${order.name}\n` +
+      `📞 *الهاتف:* ${order.phone}\n` +
+      `📍 *العنوان:* ${order.address}\n` +
+      `━━━━━━━━━━━━━━━━\n` +
+      `*المنتجات:*\n${items}\n` +
+      `━━━━━━━━━━━━━━━━\n` +
+      `💵 *الإجمالي:* ${order.total} JOD\n` +
       `━━━━━━━━━━━━━━━━\n` +
       `🔄 *الحالة:* ${order.status}\n` +
       `━━━━━━━━━━━━━━━━\n` +
-      `شكراً لطلبك من قرنفل! سنتواصل معك قريباً 💚🇵🇸`;
+      `🌐 قرنفل — متجر التراث الفلسطيني\n` +
+      `نشكرك على ثقتك! 💚🇵🇸`;
 
     const customerPhone = order.phone.replace(/^0/, '962');
     const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(customerPhone)}&text=${encodeURIComponent(message)}&apikey=${encodeURIComponent(apiKey)}`;
