@@ -9,7 +9,7 @@ const PRODUCTS_STATIC = [
     category: 'accessories',
     badge: 'best',
     icon: 'fa-regular fa-hand-peace',
-    image: ''
+    image: '', tags: ['handmade', 'gift']
   },
   {
     id: 2,
@@ -21,7 +21,7 @@ const PRODUCTS_STATIC = [
     category: 'accessories',
     badge: '',
     icon: 'fa-solid fa-key',
-    image: ''
+    image: '', tags: ['gift']
   },
   {
     id: 3,
@@ -228,6 +228,7 @@ async function fetchProductsFromServer() {
       if (Array.isArray(data) && data.length > 0) {
         PRODUCTS.length = 0;
         PRODUCTS.push(...data);
+        document.dispatchEvent(new CustomEvent('products:loaded'));
         return;
       }
     }
@@ -235,6 +236,7 @@ async function fetchProductsFromServer() {
   const local = loadProducts();
   PRODUCTS.length = 0;
   PRODUCTS.push(...local);
+  document.dispatchEvent(new CustomEvent('products:loaded'));
 }
 
 // Try server first, fallback to local
@@ -244,6 +246,7 @@ if (window.location.protocol === 'http:' || window.location.protocol === 'https:
   const local = loadProducts();
   PRODUCTS.length = 0;
   PRODUCTS.push(...local);
+  document.dispatchEvent(new CustomEvent('products:loaded'));
 }
 
 const CATEGORIES = {
@@ -258,6 +261,14 @@ const BADGE_LABELS = {
   new: 'جديد',
   sale: 'تخفيض',
   best: 'الأكثر مبيعاً'
+};
+
+const TAG_LABELS = {
+  gift: '🎁 هدية',
+  sale: '🔥 مخفض',
+  free_shipping: '🚚 توصيل مجاني',
+  limited: '⏳ كمية محدودة',
+  handmade: '✋ صنع يدوي'
 };
 
 function formatPrice(price) {

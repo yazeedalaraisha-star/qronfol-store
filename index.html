@@ -76,7 +76,18 @@
         <p>كل قطعة تحكي قصة تراث وتمسك بالأرض</p>
       </div>
 
-      <!-- Categories Filter -->
+      <!-- Search + Sort + Categories Filter -->
+      <div class="products-toolbar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="ابحث عن منتج..." oninput="handleSearch()">
+        </div>
+        <select id="sortSelect" onchange="handleSort()" class="sort-select">
+          <option value="">ترتيب: الافتراضي</option>
+          <option value="price-asc">السعر: من الأقل للأعلى</option>
+          <option value="price-desc">السعر: من الأعلى للأقل</option>
+        </select>
+      </div>
       <div class="categories-filter" id="categoriesFilter">
         <button class="cat-btn active" data-category="all">الكل</button>
         <button class="cat-btn" data-category="accessories">إكسسوارات</button>
@@ -87,6 +98,15 @@
 
       <!-- Products Grid -->
       <div class="products-grid" id="productsGrid"></div>
+
+      <!-- Related Products -->
+      <div class="related-products" id="relatedProducts" style="display:none">
+        <div class="section-header" style="margin-top:48px">
+          <h2>منتجات قد تعجبك</h2>
+          <p>اقتراحات من نفس التصنيف</p>
+        </div>
+        <div class="products-grid" id="relatedGrid"></div>
+      </div>
 
       <!-- Products Loading State -->
       <div class="products-loading" id="productsLoading">
@@ -127,16 +147,8 @@
   <section class="stats-section">
     <div class="container stats-grid">
       <div class="stat-item">
-        <span class="stat-number">40+</span>
-        <span class="stat-label">منشور</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">1,555+</span>
-        <span class="stat-label">متابع</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">446</span>
-        <span class="stat-label">يتابع</span>
+        <span class="stat-number" id="productsCount">0</span>
+        <span class="stat-label">منتج</span>
       </div>
       <div class="stat-item">
         <span class="stat-number">©</span>
@@ -223,6 +235,7 @@
     <button class="modal-close" id="checkoutModalClose"><i class="fas fa-times"></i></button>
     <h3>إتمام الطلب</h3>
 
+    <div class="checkout-order-id" id="checkoutOrderId"></div>
     <div class="checkout-order-summary">
       <h4>ملخص الطلب</h4>
       <div class="checkout-order-items" id="checkoutOrderItems"></div>
