@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>قرنفل | لوحة التحكم</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+
+    .admin-sidebar {
+      background: var(--text-dark);
+      color: white;
+      padding: 32px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .admin-sidebar .logo {
+      margin-bottom: 32px;
+    }
+
+    .admin-sidebar .logo a {
+      color: white;
+    }
+
+    .admin-sidebar .logo-sub {
+      color: rgba(255,255,255,0.5);
+    }
+
+    .admin-sidebar a:not(.logo-link) {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      color: rgba(255,255,255,0.7);
+      font-size: 15px;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    .admin-sidebar a:not(.logo-link):hover,
+    .admin-sidebar a:not(.logo-link).active {
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    .admin-sidebar a i {
+      width: 20px;
+      text-align: center;
+    }
+
+    .admin-main {
+      padding: 32px;
+      background: var(--bg-light);
+    }
+
+    .admin-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .admin-header-bar h1 {
+      font-family: var(--font-heading);
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .admin-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .admin-card h2 {
+      font-family: var(--font-heading);
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--bg-light);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-row-3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .form-row .full {
+      grid-column: 1 / -1;
+    }
+
+    .badge-preview {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th {
+      text-align: right;
+      padding: 12px 16px;
+      font-weight: 700;
+      color: var(--text-mid);
+      background: var(--bg-light);
+      border-bottom: 2px solid var(--cream-dark);
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--bg-light);
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background: rgba(0,0,0,0.02);
+    }
+
+    .product-icon-sm {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: var(--cream);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold);
+      font-size: 16px;
+    }
+
+    .badge-tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge-tag.best { background: #fef3c7; color: #92400e; }
+    .badge-tag.sale { background: #fee2e2; color: #991b1b; }
+    .badge-tag.new { background: #d1fae5; color: #065f46; }
+
+    .action-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .action-btn.edit {
+      background: var(--bg-light);
+      color: var(--text-mid);
+    }
+
+    .action-btn.edit:hover {
+      background: var(--green-mid);
+      color: white;
+    }
+
+    .action-btn.delete {
+      background: #fee2e2;
+      color: var(--palestine-red);
+    }
+
+    .action-btn.delete:hover {
+      background: var(--palestine-red);
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .admin-layout {
+        grid-template-columns: 1fr;
+      }
+      .admin-sidebar {
+        display: none;
+      }
+      .form-row,
+      .form-row-3 {
+        grid-template-columns: 1fr;
+      }
+      .admin-main {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="logo">
+        <a href="index.html" class="logo-link">
+          <h1>قرنفل</h1>
+          <span class="logo-sub">Admin Panel</span>
+        </a>
+      </div>
+      <a href="admin.html" class="active"><i class="fas fa-box"></i> المنتجات</a>
+      <a href="admin.html?tab=orders"><i class="fas fa-truck"></i> الطلبات</a>
+      <a href="admin.html?tab=settings"><i class="fas fa-cog"></i> الإعدادات</a>
+      <a href="index.html" style="margin-top:auto;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px">
+        <i class="fas fa-arrow-right"></i> العودة للمتجر
+      </a>
+    </aside>
+
+    <!-- Main -->
+    <main class="admin-main">
+      <div class="admin-header-bar">
+        <h1>إدارة المنتجات</h1>
+        <a href="index.html" class="btn-outline" style="font-size:14px;padding:8px 20px">
+          <i class="fas fa-eye"></i> معاينة المتجر
+        </a>
+      </div>
+
+      <!-- Add Product Form -->
+      <div class="admin-card" id="productFormCard">
+        <h2><i class="fas fa-plus-circle" style="color:var(--gold)"></i> إضافة منتج جديد</h2>
+        <form id="productForm" onsubmit="return saveProduct(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>اسم المنتج (عربي) *</label>
+              <input type="text" id="prodTitle" required placeholder="مثال: وشاح الكوفية الفلسطينية">
+            </div>
+            <div class="form-group">
+              <label>اسم المنتج (إنجليزي)</label>
+              <input type="text" id="prodTitleEn" placeholder="مثال: Palestinian Keffiyeh">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group full">
+              <label>الوصف</label>
+              <textarea id="prodDesc" rows="2" placeholder="وصف المنتج"></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group full">
+              <label>رابط الصورة</label>
+              <input type="url" id="prodImage" placeholder="https://i.ibb.co/xxx/photo.jpg - ارفع الصورة على ImgBB وانسخ الرابط هنا" oninput="previewImageUrl(this.value)">
+              <small style="color:var(--text-light);font-size:12px">ارفع الصورة على أي موقع (ImgBB, Cloudinary) والصق الرابط هنا</small>
+              <div id="imageUrlPreview" style="margin-top:8px;display:none;width:100px;height:100px;border-radius:8px;overflow:hidden;border:1px solid rgba(0,0,0,0.06)"></div>
+            </div>
+          </div>
+          <div class="form-row form-row-3">
+            <div class="form-group">
+              <label>السعر (JOD) *</label>
+              <input type="number" id="prodPrice" step="0.01" min="0" required placeholder="15.00">
+            </div>
+            <div class="form-group">
+              <label>السعر القديم (اختياري)</label>
+              <input type="number" id="prodOldPrice" step="0.01" min="0" placeholder="20.00">
+            </div>
+            <div class="form-group">
+              <label>التصنيف *</label>
+              <select id="prodCategory" required style="width:100%;padding:12px 16px;border:1.5px solid rgba(0,0,0,0.1);border-radius:var(--radius-sm);font-family:inherit;font-size:15px;background:var(--bg-light)">
+                <option value="accessories">إكسسوارات</option>
+                <option value="embroidery">تطريز</option>
+                <option value="decor">ديكور</option>
+                <option value="apparel">أزياء</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row form-row-3">
+            <div class="form-group">
+              <label>الشارة (Badge)</label>
+              <select id="prodBadge" style="width:100%;padding:12px 16px;border:1.5px solid rgba(0,0,0,0.1);border-radius:var(--radius-sm);font-family:inherit;font-size:15px;background:var(--bg-light)">
+                <option value="">بدون شارة</option>
+                <option value="new">جديد</option>
+                <option value="sale">تخفيض</option>
+                <option value="best">الأكثر مبيعاً</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>الأيقونة</label>
+              <select id="prodIcon" style="width:100%;padding:12px 16px;border:1.5px solid rgba(0,0,0,0.1);border-radius:var(--radius-sm);font-family:inherit;font-size:15px;background:var(--bg-light)">
+                <option value="fa-regular fa-hand-peace">☮️ كوفية</option>
+                <option value="fa-solid fa-key">🔑 مفتاح</option>
+                <option value="fa-solid fa-shirt">👕 تيشيرت</option>
+                <option value="fa-solid fa-tree">🌳 زيتون</option>
+                <option value="fa-solid fa-bag-shopping">🛍️ حقيبة</option>
+                <option value="fa-solid fa-mug-saucer">☕ كاسات</option>
+                <option value="fa-regular fa-image">🖼️ لوحة</option>
+                <option value="fa-solid fa-needle">🪡 تطريز</option>
+                <option value="fa-regular fa-building">🏛️ برواز</option>
+                <option value="fa-solid fa-scarf">🧣 إيشارب</option>
+                <option value="fa-regular fa-map">🗺️ خريطة</option>
+                <option value="fa-solid fa-box">📦 عام</option>
+              </select>
+            </div>
+            <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:8px">
+              <span class="badge-preview">
+                أيقونة: <i id="iconPreview" class="fa-solid fa-box" style="font-size:24px;color:var(--gold)"></i>
+              </span>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:8px">
+            <button type="submit" class="btn-primary" style="font-size:15px;padding:12px 28px">
+              <i class="fas fa-save"></i> حفظ المنتج
+            </button>
+            <button type="button" class="btn-outline" onclick="resetForm()" style="font-size:15px;padding:12px 28px">
+              إلغاء
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Products Table -->
+      <div class="admin-card">
+        <h2><i class="fas fa-list" style="color:var(--gold)"></i> جميع المنتجات</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>المنتج</th>
+                <th>التصنيف</th>
+                <th>السعر</th>
+                <th>الشارة</th>
+                <th>الصورة</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="productsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Export Products -->
+      <div class="admin-card">
+        <h2><i class="fas fa-download" style="color:var(--gold)"></i> تصدير / نسخ احتياطي</h2>
+        <p style="color:var(--text-mid);margin-bottom:16px;font-size:14px">السيرفر يخزن البيانات تلقائياً. هذي الميزة للنسخ الاحتياطي فقط.</p>
+        <button onclick="exportProducts()" class="btn-outline" style="font-size:14px;padding:12px 24px">
+          <i class="fas fa-file-export"></i> تصدير products.js
+        </button>
+      </div>
+
+      <!-- Quick Stats -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+        <div class="admin-card" style="text-align:center">
+          <div style="font-size:32px;font-weight:800;color:var(--green-dark)" id="statTotal">0</div>
+          <div style="color:var(--text-light);font-size:14px">إجمالي المنتجات</div>
+        </div>
+        <div class="admin-card" style="text-align:center">
+          <div style="font-size:32px;font-weight:800;color:var(--gold)" id="statAccessories">0</div>
+          <div style="color:var(--text-light);font-size:14px">إكسسوارات</div>
+        </div>
+        <div class="admin-card" style="text-align:center">
+          <div style="font-size:32px;font-weight:800;color:var(--palestine-red)" id="statApparel">0</div>
+          <div style="color:var(--text-light);font-size:14px">أزياء</div>
+        </div>
+        <div class="admin-card" style="text-align:center">
+          <div style="font-size:32px;font-weight:800;color:var(--green-mid)" id="statDecor">0</div>
+          <div style="color:var(--text-light);font-size:14px">ديكور</div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;padding:16px;background:#e8f5e9;border-radius:var(--radius-sm);font-size:13px;color:#1b5e20;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <span>✅ كل تعديل ينعكس فوراً على المتجر (لأن السيرفر شغال)</span>
+        <button onclick="if(confirm('مسح كل البيانات المخزنة محلياً؟')){localStorage.removeItem('qronfol_products');location.reload()}" style="padding:6px 14px;background:#1b5e20;color:white;border:none;border-radius:6px;font-size:12px;cursor:pointer">مسح localStorage</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/products.js"></script>
+  <script>
+    let editingId = null;
+
+    function ensureProducts() {
+      if (!PRODUCTS || PRODUCTS.length === 0) {
+        const fallback = loadProducts();
+        PRODUCTS = fallback;
+      }
+    }
+
+    function renderTable() {
+      ensureProducts();
+      const tbody = document.getElementById('productsTableBody');
+      const stats = { total: PRODUCTS.length, accessories: 0, apparel: 0, decor: 0 };
+
+      tbody.innerHTML = PRODUCTS.map(p => {
+        if (p.category === 'accessories') stats.accessories++;
+        else if (p.category === 'apparel') stats.apparel++;
+        else if (p.category === 'decor') stats.decor++;
+
+        const badgeHtml = p.badge
+          ? `<span class="badge-tag ${p.badge}">${BADGE_LABELS[p.badge] || p.badge}</span>`
+          : '—';
+
+        return `
+          <tr>
+            <td><span class="product-icon-sm"><i class="${p.icon || 'fa-solid fa-box'}"></i></span></td>
+            <td><strong>${p.title}</strong><br><small style="color:var(--text-light)">${p.titleEn || ''}</small></td>
+            <td>${CATEGORIES[p.category] || p.category}</td>
+            <td style="direction:ltr;text-align:right">${formatPrice(p.price)}</td>
+            <td>${badgeHtml}</td>
+            <td>${p.image ? `<img src="${p.image}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid rgba(0,0,0,0.06)" onerror="this.outerHTML='<span style=color:var(--text-light)>❌</span>'">` : '—'}</td>
+            <td>
+              <button class="action-btn edit" onclick="editProduct(${p.id})"><i class="fas fa-pen"></i></button>
+              <button class="action-btn delete" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('statTotal').textContent = stats.total;
+      document.getElementById('statAccessories').textContent = stats.accessories;
+      document.getElementById('statApparel').textContent = stats.apparel;
+      document.getElementById('statDecor').textContent = stats.decor;
+    }
+
+    function saveProduct(e) {
+      e.preventDefault();
+      const title = document.getElementById('prodTitle').value.trim();
+      const titleEn = document.getElementById('prodTitleEn').value.trim();
+      const desc = document.getElementById('prodDesc').value.trim();
+      const price = parseFloat(document.getElementById('prodPrice').value);
+      const oldPrice = parseFloat(document.getElementById('prodOldPrice').value) || null;
+      const category = document.getElementById('prodCategory').value;
+      const badge = document.getElementById('prodBadge').value;
+      const icon = document.getElementById('prodIcon').value;
+      const image = document.getElementById('prodImage').value.trim();
+
+      if (!title || isNaN(price)) {
+        alert('يرجى تعبئة الحقول المطلوبة');
+        return;
+      }
+
+      if (editingId) {
+        const product = PRODUCTS.find(p => p.id === editingId);
+        if (product) {
+          product.title = title;
+          product.titleEn = titleEn;
+          product.description = desc;
+          product.price = price;
+          product.oldPrice = oldPrice;
+          product.category = category;
+          product.badge = badge;
+          product.icon = icon;
+          product.image = image;
+        }
+        editingId = null;
+        document.querySelector('#productFormCard h2').innerHTML = '<i class="fas fa-plus-circle" style="color:var(--gold)"></i> إضافة منتج جديد';
+        document.querySelector('#productFormCard .btn-primary').innerHTML = '<i class="fas fa-save"></i> حفظ المنتج';
+      } else {
+        const newId = Math.max(...PRODUCTS.map(p => p.id), 0) + 1;
+        PRODUCTS.push({ id: newId, title, titleEn, description: desc, price, oldPrice, category, badge, icon, image });
+      }
+
+      saveProducts(PRODUCTS);
+      resetForm();
+      renderTable();
+      showToast('تم حفظ المنتج بنجاح!');
+    }
+
+    function editProduct(id) {
+      const product = PRODUCTS.find(p => p.id === id);
+      if (!product) return;
+
+      editingId = id;
+      document.getElementById('prodTitle').value = product.title;
+      document.getElementById('prodTitleEn').value = product.titleEn || '';
+      document.getElementById('prodDesc').value = product.description || '';
+      document.getElementById('prodPrice').value = product.price;
+      document.getElementById('prodOldPrice').value = product.oldPrice || '';
+      document.getElementById('prodCategory').value = product.category;
+      document.getElementById('prodBadge').value = product.badge || '';
+      document.getElementById('prodIcon').value = product.icon || 'fa-solid fa-box';
+      document.getElementById('prodImage').value = product.image || '';
+      previewImageUrl(product.image || '');
+      updateIconPreview();
+
+      document.querySelector('#productFormCard h2').innerHTML = '<i class="fas fa-pen" style="color:var(--gold)"></i> تعديل المنتج';
+      document.querySelector('#productFormCard .btn-primary').innerHTML = '<i class="fas fa-save"></i> تحديث المنتج';
+
+      document.getElementById('productFormCard').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function deleteProduct(id) {
+      if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+      const idx = PRODUCTS.findIndex(p => p.id === id);
+      if (idx > -1) PRODUCTS.splice(idx, 1);
+      saveProducts(PRODUCTS);
+      renderTable();
+      showToast('تم حذف المنتج');
+    }
+
+    function resetForm() {
+      document.getElementById('productForm').reset();
+      document.getElementById('prodIcon').value = 'fa-solid fa-box';
+      document.getElementById('prodOldPrice').value = '';
+      document.getElementById('prodBadge').value = '';
+      document.getElementById('prodImage').value = '';
+      document.getElementById('imageUrlPreview').style.display = 'none';
+      editingId = null;
+      document.querySelector('#productFormCard h2').innerHTML = '<i class="fas fa-plus-circle" style="color:var(--gold)"></i> إضافة منتج جديد';
+      document.querySelector('#productFormCard .btn-primary').innerHTML = '<i class="fas fa-save"></i> حفظ المنتج';
+      updateIconPreview();
+    }
+
+    function updateIconPreview() {
+      const icon = document.getElementById('prodIcon').value;
+      document.getElementById('iconPreview').className = icon;
+    }
+
+    function exportProducts() {
+      const data = JSON.stringify(PRODUCTS, null, 2);
+      const content = `const PRODUCTS_STATIC = ${data};\n\nfunction loadProducts() {\n  try {\n    const saved = localStorage.getItem('qronfol_products');\n    if (saved) {\n      const parsed = JSON.parse(saved);\n      if (Array.isArray(parsed) && parsed.length > 0) return parsed;\n    }\n  } catch {}\n  return PRODUCTS_STATIC;\n}\n\nfunction saveProducts(products) {\n  try {\n    localStorage.setItem('qronfol_products', JSON.stringify(products));\n  } catch {}\n}\n\nconst PRODUCTS = loadProducts();\n\nconst CATEGORIES = {\n  all: 'الكل',\n  accessories: 'إكسسوارات',\n  embroidery: 'تطريز',\n  decor: 'ديكور',\n  apparel: 'أزياء'\n};\n\nconst BADGE_LABELS = {\n  new: 'جديد',\n  sale: 'تخفيض',\n  best: 'الأكثر مبيعاً'\n};\n\nfunction formatPrice(price) {\n  return price.toFixed(2) + ' JOD';\n}\n\nfunction getProductIcon(icon) {\n  return icon || 'fa-solid fa-box';\n}\n`;
+      const blob = new Blob([content], { type: 'application/javascript' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'products.js';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('تم تصدير المنتجات! استبدل الملف في مجلد js/');
+    }
+
+    function previewImageUrl(url) {
+      const preview = document.getElementById('imageUrlPreview');
+      if (url && url.startsWith('http')) {
+        preview.style.display = 'block';
+        preview.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=color:var(--palestine-red);font-size:12px;padding:8px;text-align:center>⚠️ الرابط لا يعمل</span>'">`;
+      } else {
+        preview.style.display = 'none';
+      }
+    }
+
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#2d6a4f;color:white;padding:14px 24px;border-radius:8px;z-index:9999;font-size:15px;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,0.2);';
+      t.textContent = '✓ ' + msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2800);
+    }
+
+    document.getElementById('prodIcon').addEventListener('change', updateIconPreview);
+    updateIconPreview();
+    renderTable();
+  </script>
+</body>
+</html>

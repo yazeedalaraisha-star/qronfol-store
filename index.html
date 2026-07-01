@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>قرنفل | Qronfol - متجر التراث الفلسطيني</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <span>🇵🇸 خيطٌ من تراث .. وقلبٌ مع غزة 💚</span>
+    <span class="announcement-sep">|</span>
+    <span>التوصيل لكل الأردن 🇯🇴</span>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="container header-inner">
+      <div class="logo">
+        <a href="/">
+          <h1>قرنفل</h1>
+          <span class="logo-sub">Qronfol</span>
+        </a>
+      </div>
+      <nav class="nav">
+        <a href="#products" class="nav-link active">المنتجات</a>
+        <a href="#about" class="nav-link">عن قرنفل</a>
+        <a href="#contact" class="nav-link">اتصل بنا</a>
+      </nav>
+      <div class="header-actions">
+        <button class="cart-btn" id="cartBtn" aria-label="عربة التسوق">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+        <button class="menu-toggle" id="menuToggle" aria-label="القائمة">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Nav -->
+  <div class="mobile-nav" id="mobileNav">
+    <a href="#products" class="mobile-nav-link">المنتجات</a>
+    <a href="#about" class="mobile-nav-link">عن قرنفل</a>
+    <a href="#contact" class="mobile-nav-link">اتصل بنا</a>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container hero-content">
+      <div class="hero-text">
+        <h2>خيطٌ من تراث ..<br>وقلبٌ مع غزة</h2>
+        <p>من الأردن إلى العالم، نقدم لك قطعًا تراثية تحكي قصص فلسطين، woven بحب ودعم لصمود غزة 🇵🇸💚</p>
+        <a href="#products" class="btn-primary">
+          تسوق الآن
+          <i class="fas fa-arrow-left"></i>
+        </a>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-pattern"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section class="products-section" id="products">
+    <div class="container">
+      <div class="section-header">
+        <h2>منتجاتنا</h2>
+        <p>كل قطعة تحكي قصة تراث وتمسك بالأرض</p>
+      </div>
+
+      <!-- Categories Filter -->
+      <div class="categories-filter" id="categoriesFilter">
+        <button class="cat-btn active" data-category="all">الكل</button>
+        <button class="cat-btn" data-category="accessories">إكسسوارات</button>
+        <button class="cat-btn" data-category="embroidery">تطريز</button>
+        <button class="cat-btn" data-category="decor">ديكور</button>
+        <button class="cat-btn" data-category="apparel">أزياء</button>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="products-grid" id="productsGrid"></div>
+
+      <!-- Products Loading State -->
+      <div class="products-loading" id="productsLoading">
+        <div class="spinner"></div>
+        <p>جاري تحميل المنتجات...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="about-section" id="about">
+    <div class="container">
+      <div class="section-header">
+        <h2>عن قرنفل</h2>
+        <p>Qronfol</p>
+      </div>
+      <div class="about-content">
+        <div class="about-card">
+          <i class="fas fa-hands-praying"></i>
+          <h3>تراث أصيل</h3>
+          <p>نستلهم من تراثنا الفلسطيني العريق، ونقدمه بأيدي ماهرة تحافظ على هوية كل قطعة</p>
+        </div>
+        <div class="about-card">
+          <i class="fas fa-heart"></i>
+          <h3>قلب مع غزة</h3>
+          <p>جزء من أرباحنا يدعم صمود أهلنا في غزة، لأن القضية ما زالت حية في قلوبنا</p>
+        </div>
+        <div class="about-card">
+          <i class="fas fa-map-pin"></i>
+          <h3>صنع في الأردن</h3>
+          <p>ننتج ونشحن من الأردن، ونسعى لنشر التراث الفلسطيني في كل مكان</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats-section">
+    <div class="container stats-grid">
+      <div class="stat-item">
+        <span class="stat-number">40+</span>
+        <span class="stat-label">منشور</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">1,555+</span>
+        <span class="stat-label">متابع</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">446</span>
+        <span class="stat-label">يتابع</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">©</span>
+        <span class="stat-label">قرنفل | جميع الحقوق محفوظة</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact-section" id="contact">
+    <div class="container">
+      <div class="section-header">
+        <h2>تواصل معنا</h2>
+        <p>للطلبات والاستفسارات</p>
+      </div>
+      <div class="contact-content">
+        <div class="contact-card">
+          <i class="fab fa-instagram"></i>
+          <h3>إنستغرام</h3>
+          <p>@qronfol_by_razan</p>
+          <a href="https://instagram.com/qronfol_by_razan" target="_blank" class="btn-outline">زيارة</a>
+        </div>
+        <div class="contact-card">
+          <i class="fab fa-whatsapp"></i>
+          <h3>واتساب</h3>
+          <p>للطلب المباشر</p>
+          <a href="#" class="btn-outline whatsapp-order-btn">أرسل طلبك</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-brand">
+        <h3>قرنفل</h3>
+        <p>خيطٌ من تراث .. وقلبٌ مع غزة 💚🇵🇸</p>
+        <p class="footer-copyright">© قرنفل | جميع الحقوق محفوظة</p>
+      </div>
+      <div class="footer-links">
+        <a href="#products">المنتجات</a>
+        <a href="#about">عن قرنفل</a>
+        <a href="#contact">اتصل بنا</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3>عربة التسوق</h3>
+      <button class="cart-close" id="cartClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty">
+        <i class="fas fa-shopping-bag"></i>
+        <p>عربة التسوق فارغة</p>
+        <span>أضف منتجات لتتمكن من الطلب</span>
+      </div>
+    </div>
+    <div class="cart-footer" id="cartFooter" style="display: none;">
+      <div class="cart-total">
+        <span>المجموع</span>
+        <span class="total-amount" id="cartTotal">0 JOD</span>
+      </div>
+      <button class="btn-primary btn-checkout" id="checkoutBtn">
+        <i class="fab fa-whatsapp"></i>
+        إتمام الطلب عبر واتساب
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">تمت الإضافة إلى السلة!</span>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div class="checkout-overlay" id="checkoutOverlay"></div>
+  <div class="checkout-modal" id="checkoutModal">
+    <button class="modal-close" id="checkoutModalClose"><i class="fas fa-times"></i></button>
+    <h3>إتمام الطلب</h3>
+
+    <div class="checkout-order-summary">
+      <h4>ملخص الطلب</h4>
+      <div class="checkout-order-items" id="checkoutOrderItems"></div>
+      <div class="checkout-total">
+        <span>المجموع</span>
+        <span id="checkoutModalTotal">0 JOD</span>
+      </div>
+    </div>
+
+    <form id="checkoutForm" onsubmit="return submitCheckout(event)">
+      <div class="form-group">
+        <label>الاسم الكامل *</label>
+        <input type="text" id="checkoutName" required placeholder="مثال: رزان أحمد" autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label>رقم الهاتف *</label>
+        <input type="tel" id="checkoutPhone" required placeholder="مثال: 0792067277" autocomplete="tel">
+      </div>
+      <div class="form-group">
+        <label>العنوان *</label>
+        <textarea id="checkoutAddress" required rows="2" placeholder="المدينة، المنطقة، الشارع، تفاصيل إضافية"></textarea>
+      </div>
+      <div class="form-group">
+        <label>ملاحظات</label>
+        <textarea id="checkoutNotes" rows="2" placeholder="أي ملاحظات إضافية للطلب"></textarea>
+      </div>
+      <button type="submit" class="btn-primary" style="width:100%;justify-content:center;padding:16px;font-size:16px">
+        <i class="fab fa-whatsapp"></i>
+        إرسال الطلب عبر واتساب
+      </button>
+    </form>
+  </div>
+
+  <script src="js/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
