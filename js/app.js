@@ -70,7 +70,7 @@ function initCart() {
       window.activeFilter = 'wishlist';
       document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
       window.renderProducts();
-      showToast('عرض المفضلة', 'fa-heart');
+      showToast(getText('showWishlist'), 'fa-heart');
     });
   }
 
@@ -91,7 +91,7 @@ function initCart() {
     const items = cart.getItems();
     countEl.textContent = cart.getItemCount();
     if (items.length === 0) {
-      itemsEl.innerHTML = '<div class="cart-empty"><i class="fas fa-shopping-bag"></i><p>عربة التسوق فارغة</p><span>أضف منتجات لتتمكن من الطلب</span></div>';
+      itemsEl.innerHTML = '<div class="cart-empty"><i class="fas fa-shopping-bag"></i><p>' + getText('cartEmpty') + '</p><span>' + getText('cartEmptySub') + '</span></div>';
       footerEl.style.display = 'none';
       return;
     }
@@ -152,7 +152,7 @@ function initProducts() {
       grid.innerHTML = `
         <div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--text-light)">
           <i class="fas fa-box-open" style="font-size:48px;margin-bottom:16px;color:var(--cream-dark)"></i>
-          <p style="font-size:18px">لا توجد منتجات مطابقة</p>
+          <p style="font-size:18px">${getText('noProducts')}</p>
         </div>`;
       return;
     }
@@ -177,8 +177,8 @@ function initProducts() {
 
       const isOutOfStock = product.stock === 0;
       const addBtnHtml = isOutOfStock
-        ? `<span class="out-of-stock-badge">نفذ من المخزون</span>`
-        : `<button class="add-to-cart-btn" onclick="event.stopPropagation();handleAddToCart(${product.id})" title="أضف إلى السلة"><i class="fas fa-plus"></i></button>`;
+        ? `<span class="out-of-stock-badge">${getText('outOfStock')}</span>`
+        : `<button class="add-to-cart-btn" onclick="event.stopPropagation();handleAddToCart(${product.id})" title="${getText('addToCart')}"><i class="fas fa-plus"></i></button>`;
 
       const tagsHtml = (product.tags && product.tags.length)
         ? `<div class="product-tags">${product.tags.map(t => `<span class="product-tag">${TAG_LABELS[t] || t}</span>`).join('')}</div>`
@@ -195,15 +195,15 @@ function initProducts() {
       return `
         <div class="product-card" data-id="${product.id}" onclick="window.location.href='/product.html?id=${product.id}'" style="cursor:pointer">
           <div class="product-image">
-            <button class="wishlist-toggle ${isWishlisted ? 'active' : ''}" onclick="event.stopPropagation();toggleWishlist(${product.id})" title="${isWishlisted ? 'إزالة من المفضلة' : 'أضف إلى المفضلة'}">
+            <button class="wishlist-toggle ${isWishlisted ? 'active' : ''}" onclick="event.stopPropagation();toggleWishlist(${product.id})" title="${isWishlisted ? getText('removeWishlist') : getText('addWishlist')}">
               <i class="${wishlistIcon} fa-heart"></i>
             </button>
             ${imageHtml}
             ${badgeLabel ? `<span class="product-badge ${badgeClass}">${badgeLabel}</span>` : ''}
-            ${isOutOfStock ? '<span class="product-badge badge-out">نفذ</span>' : ''}
+            ${isOutOfStock ? `<span class="product-badge badge-out">${getText('outOfStock')}</span>` : ''}
           </div>
           <div class="product-body">
-            <span class="product-category">${CATEGORIES[product.category] || product.category}</span>
+            <span class="product-category">${getText('cat' + product.category.charAt(0).toUpperCase() + product.category.slice(1)) || CATEGORIES[product.category] || product.category}</span>
             <h3 class="product-title" title="${product.titleEn || ''}">${product.title}</h3>
             ${tagsHtml}
             <p class="product-description">${product.description}</p>
@@ -215,7 +215,7 @@ function initProducts() {
               </div>
             </div>
             <div class="product-actions">
-              ${(product.story && product.story.length) ? `<button class="story-btn" onclick="event.stopPropagation();openStory(${product.id})"><i class="fas fa-book-open"></i> القصة</button>` : ''}
+              ${(product.story && product.story.length) ? `<button class="story-btn" onclick="event.stopPropagation();openStory(${product.id})"><i class="fas fa-book-open"></i> ${getText('storyBtn')}</button>` : ''}
               ${shareProduct(product)}
             </div>
           </div>
@@ -303,14 +303,14 @@ function handleAddToCart(productId) {
   const product = PRODUCTS.find(p => p.id === productId);
   if (!product || product.stock === 0) return;
   cart.addItem(product);
-  showToast(`تمت إضافة "${product.title}" إلى السلة!`);
+  showToast(getText('addedToCart'));
 }
 
 window.toggleWishlist = function(productId) {
   const product = PRODUCTS.find(p => p.id === productId);
   if (!product) return;
   const isNow = cart.toggleWishlist(productId);
-  showToast(isNow ? `تمت إضافة "${product.title}" إلى المفضلة` : `تمت إزالة "${product.title}" من المفضلة`, isNow ? 'fa-heart' : 'fa-heart-broken');
+  showToast(isNow ? getText('addToCartWishlist') : getText('removeFromWishlist'), isNow ? 'fa-heart' : 'fa-heart-broken');
   window.renderProducts();
 };
 
@@ -332,15 +332,15 @@ window.applyCoupon = async function() {
     const data = await res.json();
     if (data.valid) {
       appliedCoupon = { code: data.code, discount: data.discount, id: data.id };
-      msg.innerHTML = `<span style="color:var(--green-mid)">✓ خصم ${data.discount.toFixed(2)} JOD</span> <button onclick="removeCoupon()" style="background:none;border:none;color:var(--palestine-red);cursor:pointer;font-size:13px"><i class="fas fa-times"></i></button>`;
+      msg.innerHTML = `<span style="color:var(--green-mid)">✓ ${getText('discountApplied').replace('{amount}', data.discount.toFixed(2))}</span> <button onclick="removeCoupon()" style="background:none;border:none;color:var(--palestine-red);cursor:pointer;font-size:13px"><i class="fas fa-times"></i></button>`;
       input.style.borderColor = 'var(--green-mid)';
       updateCheckoutTotal();
     } else {
       appliedCoupon = null;
-      msg.innerHTML = `<span style="color:var(--palestine-red)">${data.error || 'كود غير صالح'}</span>`;
+      msg.innerHTML = `<span style="color:var(--palestine-red)">${data.error || getText('invalidCode')}</span>`;
       input.style.borderColor = 'var(--palestine-red)';
     }
-  } catch { msg.textContent = 'خطأ في الاتصال'; }
+  } catch { msg.textContent = getText('connectionError'); }
 };
 
 window.removeCoupon = function() {
@@ -390,7 +390,7 @@ function initCheckout() {
 
   function openModal() {
     const items = cart.getItems();
-    if (items.length === 0) { showToast('عربة التسوق فارغة! أضف منتجات أولاً', 'fa-exclamation-circle'); return; }
+    if (items.length === 0) { showToast(getText('emptyCartCheckout'), 'fa-exclamation-circle'); return; }
     orderItemsEl.innerHTML = items.map(item =>
       `• ${item.title} x${item.quantity} = ${formatPrice(item.price * item.quantity)}`
     ).join('<br>');
@@ -437,7 +437,7 @@ async function submitCheckout(e) {
 
   const submitBtn = e.target.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
-  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + getText('sending');
 
   const subtotal = cart.getTotal();
   const shipping = subtotal >= shippingConfig.freeShippingOver ? 0 : shippingConfig.shippingCost;
@@ -500,7 +500,7 @@ async function submitCheckout(e) {
   }
 
   submitBtn.disabled = false;
-  submitBtn.innerHTML = '<i class="fab fa-whatsapp"></i> إرسال الطلب';
+  submitBtn.innerHTML = '<i class="fab fa-whatsapp"></i> ' + getText('submitOrder');
   return false;
 }
 

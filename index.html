@@ -29,9 +29,9 @@
 
   <!-- Announcement Bar -->
   <div class="announcement-bar">
-    <span>🇵🇸 خيطٌ من تراث .. وقلبٌ مع غزة 💚</span>
+    <span data-i18n="announcementText">🇵🇸 خيطٌ من تراث .. وقلبٌ مع غزة 💚</span>
     <span class="announcement-sep">|</span>
-    <span>التوصيل لكل الأردن 🇯🇴</span>
+    <span data-i18n="announcementDelivery">التوصيل لكل الأردن 🇯🇴</span>
   </div>
 
   <!-- Header -->
@@ -101,20 +101,20 @@
       <div class="products-toolbar">
         <div class="search-box">
           <i class="fas fa-search"></i>
-          <input type="text" id="searchInput" placeholder="ابحث عن منتج..." oninput="handleSearch()">
+          <input type="text" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="ابحث عن منتج..." oninput="handleSearch()">
         </div>
         <select id="sortSelect" onchange="handleSort()" class="sort-select">
-          <option value="">ترتيب: الافتراضي</option>
-          <option value="price-asc">السعر: من الأقل للأعلى</option>
-          <option value="price-desc">السعر: من الأعلى للأقل</option>
+          <option value="" data-i18n="sortDefault">ترتيب: الافتراضي</option>
+          <option value="price-asc" data-i18n="sortAsc">السعر: من الأقل للأعلى</option>
+          <option value="price-desc" data-i18n="sortDesc">السعر: من الأعلى للأقل</option>
         </select>
       </div>
       <div class="categories-filter" id="categoriesFilter">
-        <button class="cat-btn active" data-category="all">الكل</button>
-        <button class="cat-btn" data-category="accessories">إكسسوارات</button>
-        <button class="cat-btn" data-category="embroidery">تطريز</button>
-        <button class="cat-btn" data-category="decor">ديكور</button>
-        <button class="cat-btn" data-category="apparel">أزياء</button>
+        <button class="cat-btn active" data-category="all" data-i18n="catAll">الكل</button>
+        <button class="cat-btn" data-category="accessories" data-i18n="catAccessories">إكسسوارات</button>
+        <button class="cat-btn" data-category="embroidery" data-i18n="catEmbroidery">تطريز</button>
+        <button class="cat-btn" data-category="decor" data-i18n="catDecor">ديكور</button>
+        <button class="cat-btn" data-category="apparel" data-i18n="catApparel">أزياء</button>
       </div>
 
       <!-- Products Grid -->
@@ -123,8 +123,8 @@
       <!-- Related Products -->
       <div class="related-products" id="relatedProducts" style="display:none">
         <div class="section-header" style="margin-top:48px">
-          <h2>منتجات قد تعجبك</h2>
-          <p>اقتراحات من نفس التصنيف</p>
+          <h2 data-i18n="relatedTitle">منتجات قد تعجبك</h2>
+          <p data-i18n="relatedSub">اقتراحات من نفس التصنيف</p>
         </div>
         <div class="products-grid" id="relatedGrid"></div>
       </div>
@@ -202,7 +202,7 @@
           </svg>
         </div>
         <div class="tree-info">
-          <h2>🌿 غابتنا تنمو</h2>
+          <h2 data-i18n="treeTitle">🌿 غابتنا تنمو</h2>
           <p>كل طلب يزرع شجرة زيتون في غابتنا الرقمية<br><small style="color:var(--text-light);font-size:13px">رمزاً للصمود والعودة</small></p>
           <div class="tree-counter">
             <span class="tree-count" id="treeCount">0</span>
@@ -221,25 +221,25 @@
         <p>@qronfol_by_razan</p>
       </div>
       <div class="about-story-inline" style="max-width:700px;margin:0 auto 32px">
-        <p style="font-size:17px;line-height:2;color:var(--text-dark);margin-bottom:16px">
+        <p style="font-size:17px;line-height:2;color:var(--text-dark);margin-bottom:16px" data-i18n="aboutStory1">
           <strong style="color:var(--green-mid)">قرنفل</strong> صفحة بلشت لتعبر عن حبي للتطريز الفلسطيني 
           وإيماني بإنه الخيط مش بس هوية .. هو كمان ممكن يكون وسيلة 
           <strong style="color:var(--green-mid)">دعم</strong> و<strong style="color:var(--green-mid)">أمل</strong>.
         </p>
         <div style="text-align:center;margin:20px 0;color:var(--gold);font-size:20px">✦ ◇ ✦</div>
-        <p style="font-size:17px;line-height:2;color:var(--text-dark);margin-bottom:16px">
+        <p style="font-size:17px;line-height:2;color:var(--text-dark);margin-bottom:16px" data-i18n="aboutStory2">
           بقّدم قطع تطريز فلسطيني يدوي لتكون حاضرة معكم، 
           ورح أخصص جزء من الأرباح <strong style="color:var(--green-mid)">لدعم أهل غزة</strong> 
           ومساعدتهم في مواجهة برد الشتاء وإعادة <strong style="color:var(--green-mid)">الإعمار</strong>.
         </p>
         <div style="text-align:center;margin:20px 0;color:var(--gold);font-size:20px">✦ ◇ ✦</div>
-        <p style="font-size:17px;line-height:2;color:var(--text-dark);margin-bottom:16px">
+        <p style="font-size:17px;line-height:2;color:var(--text-dark);margin-bottom:16px" data-i18n="aboutStory3">
           بشرائكم قطعة تطريز .. أنتم تشاركون في <strong style="color:var(--green-mid)">الحفاظ على التراث</strong> 
           و<strong style="color:var(--green-mid)">مساندة أهلنا</strong> 
           وبناء بلدنا اللي بإذن الله رح نرجع عليها <strong style="color:var(--green-mid)">منتصرين</strong>.
         </p>
         <div style="text-align:center;margin:20px 0;font-size:24px">🇵🇸</div>
-        <p style="text-align:center;font-size:15px;color:var(--text-light)">شكراً إنكم معنا 💚</p>
+        <p style="text-align:center;font-size:15px;color:var(--text-light)" data-i18n="aboutStoryThanks">شكراً إنكم معنا 💚</p>
       </div>
       <div class="about-content">
         <div class="about-card">
@@ -279,14 +279,14 @@
   <section class="contact-section" id="contact">
     <div class="container">
       <div class="section-header">
-        <h2>تواصل معنا</h2>
-        <p>للطلبات والاستفسارات</p>
+        <h2 data-i18n="contactTitle">تواصل معنا</h2>
+        <p data-i18n="contactSub">للطلبات والاستفسارات</p>
       </div>
       <div class="contact-content">
         <div class="contact-card">
           <i class="fab fa-instagram"></i>
           <h3>إنستغرام</h3>
-          <p>@qronfol_by_razan</p>
+        <p data-i18n="aboutInstagram">@qronfol_by_razan</p>
           <a href="https://instagram.com/qronfol_by_razan" target="_blank" class="btn-outline">زيارة</a>
         </div>
         <div class="contact-card">
@@ -304,7 +304,7 @@
     <div class="container footer-content">
       <div class="footer-brand">
         <h3>قرنفل</h3>
-        <p>خيطٌ من تراث .. وقلبٌ مع غزة 💚🇵🇸</p>
+        <p data-i18n="footerTagline">خيطٌ من تراث .. وقلبٌ مع غزة 💚🇵🇸</p>
         <p class="footer-copyright">© قرنفل | جميع الحقوق محفوظة</p>
       </div>
       <div class="footer-links">
@@ -320,7 +320,7 @@
   <div class="cart-overlay" id="cartOverlay"></div>
   <div class="cart-sidebar" id="cartSidebar">
     <div class="cart-header">
-      <h3>عربة التسوق</h3>
+      <h3 data-i18n="cartTitle">عربة التسوق</h3>
       <button class="cart-close" id="cartClose"><i class="fas fa-times"></i></button>
     </div>
     <div class="cart-items" id="cartItems">
