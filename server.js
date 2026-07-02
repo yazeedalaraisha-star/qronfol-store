@@ -162,8 +162,6 @@ if (USE_MONGO) {
 }
 
 async function getMongoProducts() {
-  const count = await Product.countDocuments();
-  if (count === 0) await Product.insertMany(getDefaultProducts());
   return await Product.find().lean();
 }
 
@@ -692,6 +690,11 @@ async function start() {
         maxPoolSize: 5
       });
       console.log('  🍃 MongoDB connected');
+      const productCount = await Product.countDocuments();
+      if (productCount === 0) {
+        await Product.insertMany(getDefaultProducts());
+        console.log('  🌱 Default products seeded');
+      }
     } catch (err) {
       console.error('  ❌ MongoDB connection failed:', err.message);
       process.exit(1);
