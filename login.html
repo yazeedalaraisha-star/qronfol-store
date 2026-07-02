@@ -22,9 +22,6 @@
     .login-card .form-group input:focus { outline: none; border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(45,106,79,0.1); }
     .login-card .btn-primary { width: 100%; justify-content: center; padding: 14px; font-size: 16px; }
     .login-footer { margin-top: 20px; font-size: 13px; color: var(--text-light); }
-    .spinner-btn { display: none; }
-    .btn-primary.loading .btn-text { display: none; }
-    .btn-primary.loading .spinner-btn { display: inline; }
   </style>
 </head>
 <body>
@@ -36,14 +33,13 @@
       <h2>تسجيل الدخول</h2>
       <p>لوحة التحكم — متجر التراث الفلسطيني</p>
       <div class="login-error" id="loginError"></div>
-      <form id="loginForm" onsubmit="return handleLogin(event)">
+      <form id="loginForm" action="/api/login-form" method="POST">
         <div class="form-group">
           <label>كلمة المرور</label>
-          <input type="password" id="password" required placeholder="أدخل كلمة المرور" autocomplete="current-password">
+          <input type="password" name="password" required placeholder="أدخل كلمة المرور" autocomplete="current-password">
         </div>
-        <button type="submit" class="btn-primary" id="loginBtn">
-          <span class="btn-text"><i class="fas fa-lock"></i> تسجيل الدخول</span>
-          <span class="spinner-btn"><i class="fas fa-spinner fa-spin"></i> جاري...</span>
+        <button type="submit" class="btn-primary">
+          <i class="fas fa-lock"></i> تسجيل الدخول
         </button>
       </form>
       <div class="login-footer">
@@ -53,49 +49,16 @@
   </div>
 
   <script>
-    async function handleLogin(e) {
-      e.preventDefault();
-      const btn = document.getElementById('loginBtn');
-      const error = document.getElementById('loginError');
-      const password = document.getElementById('password').value.trim();
-
-      if (!password) { showError('يرجى إدخال كلمة المرور'); return false; }
-
-      btn.classList.add('loading');
-      error.style.display = 'none';
-
-      try {
-        const res = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password })
-        });
-
-        if (res.ok) {
-          window.location.href = '/admin.html';
-        } else if (res.status === 429) {
-          showError('محاولات كثيرة، حاول بعد 15 دقيقة');
-        } else {
-          const data = await res.json();
-          showError(data.error || 'كلمة المرور غير صحيحة');
-        }
-      } catch (err) {
-        showError('حدث خطأ في الاتصال');
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('error') === '1') {
+        document.getElementById('loginError').textContent = 'كلمة المرور غير صحيحة';
+        document.getElementById('loginError').style.display = 'block';
+      } else if (params.get('error') === '2') {
+        document.getElementById('loginError').textContent = 'محاولات كثيرة، حاول بعد 15 دقيقة';
+        document.getElementById('loginError').style.display = 'block';
       }
-
-      btn.classList.remove('loading');
-      return false;
-    }
-
-    function showError(msg) {
-      const el = document.getElementById('loginError');
-      el.textContent = msg;
-      el.style.display = 'block';
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') handleLogin(e);
-    });
+    })();
   </script>
 </body>
 </html>

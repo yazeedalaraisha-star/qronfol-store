@@ -27,6 +27,7 @@ app.use(helmet({
 }));
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({
   secret: SESSION_SECRET,
@@ -47,7 +48,15 @@ app.use('/api/', apiLimiter);
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
-  message: { error: 'محاولات دخول كثيرة، حاول بعد 15 دقيقة' }
+  message: { error: 'محاولات دخول كثيرة، حاول بعد 15 دقيقة' },
+});
+
+const authFormLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  handler: (req, res) => {
+    res.redirect('/login.html?error=2');
+  },
 });
 
 // ==================== Admin Auth (MUST be before static) ====================
@@ -76,6 +85,15 @@ app.post('/api/login', authLimiter, (req, res) => {
     return res.json({ success: true });
   }
   return res.status(401).json({ error: 'كلمة المرور غير صحيحة' });
+});
+
+app.post('/api/login-form', authFormLimiter, (req, res) => {
+  const { password } = req.body;
+  if (password === ADMIN_PASSWORD) {
+    req.session.isAdmin = true;
+    return res.redirect('/admin.html');
+  }
+  return res.redirect('/login.html?error=1');
 });
 
 app.post('/api/logout', (req, res) => {
