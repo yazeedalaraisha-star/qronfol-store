@@ -10,6 +10,7 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'qronfol2024';
@@ -31,7 +32,8 @@ app.use(session({
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }
+  proxy: true,
+  cookie: { secure: true, httpOnly: true, sameSite: 'lax', maxAge: 24 * 60 * 60 * 1000 }
 }));
 
 // Rate limiting
@@ -48,9 +50,24 @@ const authLimiter = rateLimit({
   message: { error: 'محاولات دخول كثيرة، حاول بعد 15 دقيقة' }
 });
 
+// ==================== Admin Auth (MUST be before static) ====================
+app.use('/admin.html', (req, res, next) => {
+  if (req.session && req.session.isAdmin) return next();
+  return res.redirect('/login.html');
+});
+
+app.use(['/api/products', '/api/orders', '/api/settings'], (req, res, next) => {
+  const writeMethods = ['POST', 'PUT', 'DELETE', 'PATCH'];
+  if (writeMethods.includes(req.method)) {
+    if (req.session && req.session.isAdmin) return next();
+    return res.status(401).json({ error: 'غير مصرح، يرجى تسجيل الدخول' });
+  }
+  next();
+});
+
 app.use(express.static(__dirname, { maxAge: '1h', etag: true }));
 
-// ==================== Admin Auth ====================
+// ==================== Admin Routes ====================
 
 app.post('/api/login', authLimiter, (req, res) => {
   const { password } = req.body;
@@ -68,23 +85,6 @@ app.post('/api/logout', (req, res) => {
 
 app.get('/api/check-auth', (req, res) => {
   res.json({ authenticated: !!(req.session && req.session.isAdmin) });
-});
-
-// Protect admin.html
-app.use('/admin.html', (req, res, next) => {
-  if (req.session && req.session.isAdmin) return next();
-  res.redirect('/login.html');
-});
-
-// Protect /api/orders POST/PUT/DELETE (write operations)
-app.use(['/api/order', '/api/orders', '/api/products'], (req, res, next) => {
-  const writeMethods = ['POST', 'PUT', 'DELETE', 'PATCH'];
-  if (writeMethods.includes(req.method)) {
-    if (req.session && req.session.isAdmin) return next();
-    if (req.path === '/api/order' && req.method === 'POST') return next();
-    return res.status(401).json({ error: 'غير مصرح، يرجى تسجيل الدخول' });
-  }
-  next();
 });
 
 if (!fs.existsSync(path.join(__dirname, 'data'))) {
