@@ -71,7 +71,8 @@
       <a href="#" class="active" onclick="switchTab('products',this)"><i class="fas fa-box"></i> المنتجات</a>
       <a href="#" onclick="switchTab('orders',this)"><i class="fas fa-truck"></i> الطلبات</a>
       <a href="#" onclick="switchTab('settings',this)"><i class="fas fa-cog"></i> الإعدادات</a>
-      <a href="index.html" class="sidebar-section"><i class="fas fa-arrow-right"></i> العودة للمتجر</a>
+      <a href="index.html"><i class="fas fa-arrow-right"></i> العودة للمتجر</a>
+      <a href="#" onclick="handleLogout()" class="sidebar-section" style="color:#fca5a5"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
     </aside>
 
     <main class="admin-main">
@@ -246,6 +247,11 @@
             <div style="color:var(--text-light);font-size:14px">ديكور</div>
           </div>
         </div>
+
+        <div class="admin-card" style="margin-top:16px;text-align:center">
+          <h2><i class="fas fa-chart-pie" style="color:var(--gold)"></i> إحصائيات الطلبات</h2>
+          <div style="max-width:300px;margin:0 auto"><canvas id="statsChart" width="300" height="300"></canvas></div>
+        </div>
       </div>
 
       <!-- ============ TAB: ORDERS ============ -->
@@ -299,7 +305,7 @@
       <div class="tab-content" id="tab-settings">
         <!-- WhatsApp Settings -->
         <div class="admin-card">
-          <h2><i class="fas fa-cog" style="color:var(--gold)"></i> إعدادات الإشعارات</h2>
+          <h2><i class="fab fa-whatsapp" style="color:var(--gold)"></i> إعدادات واتساب</h2>
           <p style="color:var(--text-mid);margin-bottom:16px;font-size:14px">
             🔔 <b>الطريقة 1 — إرسال يدوي (موصى به حالياً)</b><br>
             افتح صفحة الطلبات واضغط <b>"إرسال الجديد للواتساب"</b> — يفتح واتساب مباشرة بالرسالة.
@@ -324,8 +330,56 @@
                 <small style="color:var(--text-light);font-size:12px">للإرسال التلقائي (اختياري)</small>
               </div>
             </div>
-            <button type="submit" class="btn-primary" style="font-size:14px;padding:10px 24px"><i class="fas fa-save"></i> حفظ إعدادات الإشعارات</button>
+            <button type="submit" class="btn-primary" style="font-size:14px;padding:10px 24px"><i class="fas fa-save"></i> حفظ إعدادات واتساب</button>
             <span id="settingsStatus" style="margin-right:12px;font-size:13px;color:var(--green-mid)"></span>
+          </form>
+        </div>
+
+        <!-- Email Settings -->
+        <div class="admin-card">
+          <h2><i class="fas fa-envelope" style="color:var(--gold)"></i> إعدادات الإيميل</h2>
+          <p style="color:var(--text-mid);margin-bottom:16px;font-size:14px">استقبل إشعارات الطلبات على بريدك الإلكتروني (اختياري)</p>
+          <form id="emailForm" onsubmit="return saveEmailSettings(event)">
+            <div class="form-row form-row-3">
+              <div class="form-group">
+                <label>تفعيل الإيميل</label>
+                <select id="emailEnabled" style="width:100%;padding:12px 16px;border:1.5px solid rgba(0,0,0,0.1);border-radius:var(--radius-sm);font-family:inherit;font-size:15px;background:var(--bg-light)">
+                  <option value="false">غير مفعل</option>
+                  <option value="true">مفعل</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>مزود البريد (SMTP)</label>
+                <input type="text" id="emailHost" placeholder="smtp.gmail.com" style="direction:ltr;text-align:left">
+              </div>
+              <div class="form-group">
+                <label>المنفذ (Port)</label>
+                <input type="number" id="emailPort" placeholder="587" style="direction:ltr;text-align:left">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>البريد الإلكتروني (للدخول)</label>
+                <input type="email" id="emailUser" placeholder="you@gmail.com" style="direction:ltr;text-align:left">
+              </div>
+              <div class="form-group">
+                <label>كلمة المرور / App Password</label>
+                <input type="password" id="emailPass" placeholder="..." style="direction:ltr;text-align:left">
+                <small style="color:var(--text-light);font-size:12px">لـ Gmail استخدم App Password من إعدادات الأمان</small>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>البريد المرسل منه</label>
+                <input type="email" id="emailFrom" placeholder="noreply@qronfol.com" style="direction:ltr;text-align:left">
+              </div>
+              <div class="form-group">
+                <label>البريد المستلم (الخاص بك)</label>
+                <input type="email" id="emailTo" placeholder="admin@qronfol.com" style="direction:ltr;text-align:left">
+              </div>
+            </div>
+            <button type="submit" class="btn-primary" style="font-size:14px;padding:10px 24px"><i class="fas fa-save"></i> حفظ إعدادات الإيميل</button>
+            <span id="emailStatus" style="margin-right:12px;font-size:13px;color:var(--green-mid)"></span>
           </form>
         </div>
 
@@ -348,6 +402,35 @@
             <span id="shippingStatus" style="margin-right:12px;font-size:13px;color:var(--green-mid)"></span>
           </form>
         </div>
+
+        <!-- Payment Settings -->
+        <div class="admin-card">
+          <h2><i class="fas fa-credit-card" style="color:var(--gold)"></i> إعدادات الدفع</h2>
+          <p style="color:var(--text-mid);margin-bottom:16px;font-size:14px">اختر طريقة الدفع الأساسية وأضف مفاتيح API (اختياري)</p>
+          <form id="paymentForm" onsubmit="return savePaymentSettings(event)">
+            <div class="form-row form-row-3">
+              <div class="form-group">
+                <label>طريقة الدفع الرئيسية</label>
+                <select id="paymentMethod" style="width:100%;padding:12px 16px;border:1.5px solid rgba(0,0,0,0.1);border-radius:var(--radius-sm);font-family:inherit;font-size:15px;background:var(--bg-light)">
+                  <option value="whatsapp">واتساب</option>
+                  <option value="cod">الدفع عند الاستلام</option>
+                  <option value="stripe">Stripe (بطاقة ائتمان)</option>
+                  <option value="paypal">PayPal</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Stripe Public Key</label>
+                <input type="text" id="stripeKey" placeholder="pk_test_..." style="direction:ltr;text-align:left">
+              </div>
+              <div class="form-group">
+                <label>PayPal Client ID</label>
+                <input type="text" id="paypalClientId" placeholder="..." style="direction:ltr;text-align:left">
+              </div>
+            </div>
+            <button type="submit" class="btn-primary" style="font-size:14px;padding:10px 24px"><i class="fas fa-save"></i> حفظ إعدادات الدفع</button>
+            <span id="paymentStatus" style="margin-right:12px;font-size:13px;color:var(--green-mid)"></span>
+          </form>
+        </div>
       </div>
 
       <div style="margin-top:24px;padding:16px;background:#e8f5e9;border-radius:var(--radius-sm);font-size:13px;color:#1b5e20;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
@@ -357,6 +440,7 @@
     </main>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="js/products.js"></script>
   <script>
     let editingId = null;
@@ -766,7 +850,48 @@
         if (data.callmebotApiKey) document.getElementById('settingsApiKey').value = data.callmebotApiKey;
         if (data.shippingCost) document.getElementById('shippingCost').value = data.shippingCost;
         if (data.freeShippingOver) document.getElementById('freeShippingOver').value = data.freeShippingOver;
+        if (data.emailEnabled !== undefined) document.getElementById('emailEnabled').value = data.emailEnabled ? 'true' : 'false';
+        if (data.emailHost) document.getElementById('emailHost').value = data.emailHost;
+        if (data.emailPort) document.getElementById('emailPort').value = data.emailPort;
+        if (data.emailUser) document.getElementById('emailUser').value = data.emailUser;
+        if (data.emailFrom) document.getElementById('emailFrom').value = data.emailFrom;
+        if (data.emailTo) document.getElementById('emailTo').value = data.emailTo;
+        if (data.paymentMethod) document.getElementById('paymentMethod').value = data.paymentMethod;
+        if (data.stripeKey) document.getElementById('stripeKey').value = data.stripeKey;
+        if (data.paypalClientId) document.getElementById('paypalClientId').value = data.paypalClientId;
       } catch {}
+    }
+
+    async function saveEmailSettings(e) {
+      e.preventDefault();
+      const enabled = document.getElementById('emailEnabled').value === 'true';
+      const host = document.getElementById('emailHost').value.trim();
+      const port = parseInt(document.getElementById('emailPort').value) || 587;
+      const user = document.getElementById('emailUser').value.trim();
+      const pass = document.getElementById('emailPass').value.trim();
+      const from = document.getElementById('emailFrom').value.trim();
+      const to = document.getElementById('emailTo').value.trim();
+      try {
+        const data = await (await fetch('/api/settings')).json();
+        Object.assign(data, { emailEnabled: enabled, emailHost: host, emailPort: port, emailUser: user, emailPass: pass, emailFrom: from, emailTo: to });
+        const res = await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        if (res.ok) { document.getElementById('emailStatus').textContent = '✓ تم الحفظ'; setTimeout(() => document.getElementById('emailStatus').textContent = '', 3000); }
+      } catch {}
+      return false;
+    }
+
+    async function savePaymentSettings(e) {
+      e.preventDefault();
+      const method = document.getElementById('paymentMethod').value;
+      const stripeKey = document.getElementById('stripeKey').value.trim();
+      const paypalClientId = document.getElementById('paypalClientId').value.trim();
+      try {
+        const data = await (await fetch('/api/settings')).json();
+        Object.assign(data, { paymentMethod: method, stripeKey, paypalClientId, paypalEnabled: !!paypalClientId });
+        const res = await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        if (res.ok) { document.getElementById('paymentStatus').textContent = '✓ تم الحفظ'; setTimeout(() => document.getElementById('paymentStatus').textContent = '', 3000); }
+      } catch {}
+      return false;
     }
 
     async function saveSettings(e) {
@@ -808,9 +933,69 @@
       return false;
     }
 
+    // ==================== AUTH CHECK ====================
+
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/check-auth');
+        const data = await res.json();
+        if (!data.authenticated) {
+          window.location.href = '/login.html';
+        }
+      } catch {
+        window.location.href = '/login.html';
+      }
+    }
+
+    async function handleLogout() {
+      if (!confirm('تسجيل الخروج؟')) return;
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = '/login.html';
+    }
+
+    // ==================== STATS / CHARTS ====================
+
+    let statsChart = null;
+
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/stats');
+        const stats = await res.json();
+        document.getElementById('statTotal').textContent = stats.totalOrders || 0;
+        document.getElementById('orderStatTotal').textContent = stats.totalOrders || 0;
+        document.getElementById('orderStatRevenue').textContent = (stats.totalRevenue || 0).toFixed(2) + ' JOD';
+        document.getElementById('orderStatNew').textContent = stats.newOrders || 0;
+        document.getElementById('orderStatDelivered').textContent = stats.deliveredOrders || 0;
+
+        const canvas = document.getElementById('statsChart');
+        if (canvas && !statsChart) {
+          const ctx = canvas.getContext('2d');
+          statsChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: ['جديد', 'تم التوصيل', 'أخرى'],
+              datasets: [{
+                data: [stats.newOrders || 0, stats.deliveredOrders || 0, Math.max(0, (stats.totalOrders || 0) - (stats.newOrders || 0) - (stats.deliveredOrders || 0))],
+                backgroundColor: ['#1e40af', '#065f46', '#d1d5db'],
+                borderWidth: 0
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: { position: 'bottom', labels: { font: { family: 'Tajawal' } } }
+              }
+            }
+          });
+        }
+      } catch {}
+    }
+
     // ==================== INIT ====================
 
     document.getElementById('prodIcon').addEventListener('change', updateIconPreview);
+
+    checkAuth();
 
     // Tab from URL
     const params = new URLSearchParams(window.location.search);
@@ -821,11 +1006,20 @@
     switchTab(tab, links[tabMap[tab]] || links[0]);
 
     loadSettings();
+    loadStats();
     updateIconPreview();
     renderTable();
 
     // Re-render when server data arrives (async fetch in products.js)
     document.addEventListener('products:loaded', renderTable);
+
+    // Auto-refresh orders & stats
+    setInterval(() => {
+      if (document.getElementById('tab-orders').classList.contains('active')) {
+        renderOrders();
+      }
+      loadStats();
+    }, 30000);
 
     // Clear stale localStorage that might conflict with server data
     setTimeout(() => {

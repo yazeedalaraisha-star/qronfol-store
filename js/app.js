@@ -4,7 +4,15 @@ document.addEventListener('DOMContentLoaded', () => {
   initProducts();
   initCheckout();
   initSmoothScroll();
+  loadShippingConfig();
+  registerSW();
 });
+
+function registerSW() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+}
 
 function initMobileMenu() {
   const toggle = document.getElementById('menuToggle');
@@ -53,6 +61,24 @@ function initCart() {
   const itemsEl = document.getElementById('cartItems');
   const footerEl = document.getElementById('cartFooter');
   const totalEl = document.getElementById('cartTotal');
+  const wishlistBtn = document.getElementById('wishlistBtn');
+  const wishlistCount = document.getElementById('wishlistCount');
+
+  // Wishlist
+  if (wishlistBtn) {
+    wishlistBtn.addEventListener('click', () => {
+      window.activeFilter = 'wishlist';
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      window.renderProducts();
+      showToast('عرض المفضلة', 'fa-heart');
+    });
+  }
+
+  function updateWishlistCount() {
+    if (wishlistCount) wishlistCount.textContent = cart.getWishlistCount();
+  }
+  if (wishlistBtn) cart.onWishlistUpdate(updateWishlistCount);
+  setTimeout(updateWishlistCount, 100);
 
   function openCart() { cartSidebar.classList.add('open'); cartOverlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
   function closeCart() { cartSidebar.classList.remove('open'); cartOverlay.classList.remove('open'); document.body.style.overflow = ''; }
@@ -102,8 +128,12 @@ function initProducts() {
   const filterContainer = document.getElementById('categoriesFilter');
 
   window.renderProducts = function(category) {
-    if (category !== undefined) activeCategory = category;
+    if (category !== undefined) {
+      activeCategory = category;
+      window.activeFilter = null;
+    }
     let filtered = PRODUCTS.filter(p => {
+      if (window.activeFilter === 'wishlist' && !cart.isInWishlist(p.id)) return false;
       if (activeCategory !== 'all' && p.category !== activeCategory) return false;
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
@@ -142,7 +172,7 @@ function initProducts() {
       const badgeLabel = product.badge ? (BADGE_LABELS[product.badge] || '') : '';
       const oldPriceHtml = product.oldPrice ? `<span class="old-price">${formatPrice(product.oldPrice)}</span>` : '';
       const imageHtml = product.image
-        ? `<img src="${product.image}" alt="${product.title}" class="product-img" onerror="handleImageError(this)"><div class="product-image-placeholder" style="display:none"><i class="${getProductIcon(product.icon)}"></i></div>`
+        ? `<img src="${product.image}" alt="${product.title}" class="product-img" loading="lazy" onerror="handleImageError(this)"><div class="product-image-placeholder" style="display:none"><i class="${getProductIcon(product.icon)}"></i></div>`
         : `<div class="product-image-placeholder"><i class="${getProductIcon(product.icon)}"></i></div>`;
 
       const isOutOfStock = product.stock === 0;
@@ -154,9 +184,20 @@ function initProducts() {
         ? `<div class="product-tags">${product.tags.map(t => `<span class="product-tag">${TAG_LABELS[t] || t}</span>`).join('')}</div>`
         : '';
 
+      const avgRating = cart.getAverageRating(product.id);
+      const starsHtml = avgRating > 0
+        ? `<div class="review-stars">${[1,2,3,4,5].map(i => `<span class="review-star ${i <= Math.round(avgRating) ? 'active' : ''}">★</span>`).join('')}<span style="font-size:11px;color:var(--text-light);margin-right:4px">${avgRating.toFixed(1)}</span></div>`
+        : '';
+
+      const isWishlisted = cart.isInWishlist(product.id);
+      const wishlistIcon = isWishlisted ? 'fas' : 'far';
+
       return `
         <div class="product-card" data-id="${product.id}" onclick="window.location.href='/product.html?id=${product.id}'" style="cursor:pointer">
           <div class="product-image">
+            <button class="wishlist-toggle ${isWishlisted ? 'active' : ''}" onclick="event.stopPropagation();toggleWishlist(${product.id})" title="${isWishlisted ? 'إزالة من المفضلة' : 'أضف إلى المفضلة'}">
+              <i class="${wishlistIcon} fa-heart"></i>
+            </button>
             ${imageHtml}
             ${badgeLabel ? `<span class="product-badge ${badgeClass}">${badgeLabel}</span>` : ''}
             ${isOutOfStock ? '<span class="product-badge badge-out">نفذ</span>' : ''}
@@ -166,6 +207,7 @@ function initProducts() {
             <h3 class="product-title" title="${product.titleEn || ''}">${product.title}</h3>
             ${tagsHtml}
             <p class="product-description">${product.description}</p>
+            ${starsHtml ? `<div class="product-reviews">${starsHtml}</div>` : ''}
             <div class="product-footer">
               <span class="product-price">${oldPriceHtml}${formatPrice(product.price)}</span>
               <div class="product-footer-left">
@@ -197,14 +239,18 @@ function initProducts() {
     if (related.length === 0) { container.style.display = 'none'; return; }
     container.style.display = 'block';
     grid.innerHTML = related.map(p => {
+      const avg = cart.getAverageRating(p.id);
+      const s = avg > 0 ? [1,2,3,4,5].map(i => `<span class="review-star ${i <= Math.round(avg) ? 'active' : ''}">★</span>`).join('') : '';
+      const rHtml = s ? `<div class="product-reviews"><div class="review-stars">${s}<span style="font-size:11px;color:var(--text-light);margin-right:4px">${avg.toFixed(1)}</span></div></div>` : '';
       const imageHtml = p.image
-        ? `<img src="${p.image}" alt="${p.title}" class="product-img" onerror="this.style.display='none'">`
+        ? `<img src="${p.image}" alt="${p.title}" class="product-img" loading="lazy" onerror="this.style.display='none'">`
         : `<div class="product-image-placeholder"><i class="${p.icon || 'fa-solid fa-box'}"></i></div>`;
       return `<div class="product-card" data-id="${p.id}" onclick="window.location.href='/product.html?id=${p.id}'" style="cursor:pointer">
         <div class="product-image">${imageHtml}</div>
         <div class="product-body">
           <span class="product-category">${CATEGORIES[p.category] || p.category}</span>
           <h3 class="product-title">${p.title}</h3>
+          ${rHtml}
           <div class="product-footer">
             <span class="product-price">${formatPrice(p.price)}</span>
             <button class="add-to-cart-btn" onclick="event.stopPropagation();handleAddToCart(${p.id})"><i class="fas fa-plus"></i></button>
@@ -260,12 +306,32 @@ function handleAddToCart(productId) {
   showToast(`تمت إضافة "${product.title}" إلى السلة!`);
 }
 
+window.toggleWishlist = function(productId) {
+  const product = PRODUCTS.find(p => p.id === productId);
+  if (!product) return;
+  const isNow = cart.toggleWishlist(productId);
+  showToast(isNow ? `تمت إضافة "${product.title}" إلى المفضلة` : `تمت إزالة "${product.title}" من المفضلة`, isNow ? 'fa-heart' : 'fa-heart-broken');
+  window.renderProducts();
+};
+
+let shippingConfig = { shippingCost: 2.00, freeShippingOver: 30.00 };
+
+async function loadShippingConfig() {
+  try {
+    const res = await fetch('/api/payment-config');
+    if (res.ok) shippingConfig = await res.json();
+  } catch {}
+}
+
 function initCheckout() {
   const checkoutBtn = document.getElementById('checkoutBtn');
   const modal = document.getElementById('checkoutModal');
   const overlay = document.getElementById('checkoutOverlay');
   const closeBtn = document.getElementById('checkoutModalClose');
   const orderItemsEl = document.getElementById('checkoutOrderItems');
+  const subtotalEl = document.getElementById('checkoutModalSubtotal');
+  const shippingEl = document.getElementById('checkoutModalShipping');
+  const shippingRow = document.getElementById('checkoutShippingRow');
   const totalEl = document.getElementById('checkoutModalTotal');
 
   function openModal() {
@@ -274,7 +340,19 @@ function initCheckout() {
     orderItemsEl.innerHTML = items.map(item =>
       `• ${item.title} x${item.quantity} = ${formatPrice(item.price * item.quantity)}`
     ).join('<br>');
-    totalEl.textContent = formatPrice(cart.getTotal());
+    const subtotal = cart.getTotal();
+    const shipping = subtotal >= shippingConfig.freeShippingOver ? 0 : shippingConfig.shippingCost;
+    subtotalEl.textContent = formatPrice(subtotal);
+    if (shipping > 0) {
+      shippingRow.style.display = 'flex';
+      shippingEl.textContent = formatPrice(shipping);
+    } else if (shippingConfig.shippingCost > 0) {
+      shippingRow.style.display = 'flex';
+      shippingEl.textContent = 'مجاني 🎉';
+    } else {
+      shippingRow.style.display = 'none';
+    }
+    totalEl.textContent = formatPrice(subtotal + shipping);
     document.getElementById('checkoutOrderId').textContent = '';
     modal.classList.add('open');
     overlay.classList.add('open');
@@ -294,6 +372,7 @@ async function submitCheckout(e) {
   const phone = document.getElementById('checkoutPhone').value.trim();
   const address = document.getElementById('checkoutAddress').value.trim();
   const notes = document.getElementById('checkoutNotes').value.trim();
+  const paymentMethod = document.getElementById('checkoutPayment').value;
   const items = cart.getItems();
 
   if (items.length === 0) { showToast('عربة التسوق فارغة!', 'fa-exclamation-circle'); return false; }
@@ -302,10 +381,14 @@ async function submitCheckout(e) {
   submitBtn.disabled = true;
   submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
 
+  const subtotal = cart.getTotal();
+  const shipping = subtotal >= shippingConfig.freeShippingOver ? 0 : shippingConfig.shippingCost;
+
   const orderData = {
-    name, phone, address, notes,
+    name, phone, address, notes, paymentMethod,
     items: items.map(i => ({ title: i.title, quantity: i.quantity, price: i.price })),
-    total: cart.getTotal().toFixed(2)
+    total: subtotal.toFixed(2),
+    shippingCost: shipping
   };
 
   try {
@@ -326,9 +409,10 @@ async function submitCheckout(e) {
       // Save order in session for reference if customer returns
       sessionStorage.setItem('lastOrder', JSON.stringify({
         id: data.orderId,
-        name, phone, address, notes,
+        name, phone, address, notes, paymentMethod,
         items: items.map(i => ({ title: i.title, quantity: i.quantity, price: i.price })),
-        total: cart.getTotal().toFixed(2),
+        total: data.total || (subtotal + shipping).toFixed(2),
+        shipping: data.shipping || shipping.toFixed(2),
         createdAt: new Date().toISOString()
       }));
 
@@ -351,7 +435,7 @@ async function submitCheckout(e) {
   }
 
   submitBtn.disabled = false;
-  submitBtn.innerHTML = '<i class="fab fa-whatsapp"></i> إرسال الطلب عبر واتساب';
+  submitBtn.innerHTML = '<i class="fab fa-whatsapp"></i> إرسال الطلب';
   return false;
 }
 

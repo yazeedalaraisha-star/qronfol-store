@@ -4,6 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>قرنفل | Qronfol - متجر التراث الفلسطيني</title>
+  <meta name="description" content="متجر فلسطيني تراثي - خيطٌ من تراث وقلبٌ مع غزة. تسوق الكوفية، التطريز، الديكور، والإكسسوارات الفلسطينية الأصيلة.">
+  <meta name="keywords" content="فلسطين, تراث, كوفية, تطريز, غزة, الأردن, هدايا, Palestinian, heritage, keffiyeh">
+  <meta name="author" content="Qronfol">
+  <meta name="theme-color" content="#1a3c34">
+  <!-- Open Graph -->
+  <meta property="og:title" content="قرنفل | Qronfol - متجر التراث الفلسطيني">
+  <meta property="og:description" content="خيطٌ من تراث .. وقلبٌ مع غزة 💚🇵🇸">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://qronfol.com">
+  <meta property="og:locale" content="ar_JO">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="قرنفل | Qronfol - متجر التراث الفلسطيني">
+  <meta name="twitter:description" content="خيطٌ من تراث .. وقلبٌ مع غزة 💚🇵🇸">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%231a3c34'/%3E%3Ctext x='96' y='124' font-size='96' text-anchor='middle' fill='white'%3E🌿%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -33,6 +49,10 @@
         <a href="#contact" class="nav-link">اتصل بنا</a>
       </nav>
       <div class="header-actions">
+        <button class="wishlist-btn" id="wishlistBtn" aria-label="المفضلة" title="المفضلة">
+          <i class="far fa-heart"></i>
+          <span class="wishlist-count" id="wishlistCount">0</span>
+        </button>
         <button class="cart-btn" id="cartBtn" aria-label="عربة التسوق">
           <i class="fas fa-shopping-bag"></i>
           <span class="cart-count" id="cartCount">0</span>
@@ -316,7 +336,15 @@
       <h4>ملخص الطلب</h4>
       <div class="checkout-order-items" id="checkoutOrderItems"></div>
       <div class="checkout-total">
-        <span>المجموع</span>
+        <span>المجموع الفرعي</span>
+        <span id="checkoutModalSubtotal">0 JOD</span>
+      </div>
+      <div class="checkout-total" id="checkoutShippingRow" style="display:none">
+        <span>التوصيل</span>
+        <span id="checkoutModalShipping">0 JOD</span>
+      </div>
+      <div class="checkout-total" style="font-size:22px;border-top:2px solid var(--green-dark);padding-top:12px;margin-top:8px">
+        <span>الإجمالي</span>
         <span id="checkoutModalTotal">0 JOD</span>
       </div>
     </div>
@@ -335,12 +363,19 @@
         <textarea id="checkoutAddress" required rows="2" placeholder="المدينة، المنطقة، الشارع، تفاصيل إضافية"></textarea>
       </div>
       <div class="form-group">
+        <label>طريقة الدفع</label>
+        <select id="checkoutPayment" style="width:100%;padding:12px 16px;border:1.5px solid rgba(0,0,0,0.1);border-radius:var(--radius-sm);font-family:inherit;font-size:15px;background:var(--bg-light)">
+          <option value="whatsapp">الدفع عبر واتساب</option>
+          <option value="cod">الدفع عند الاستلام</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label>ملاحظات</label>
         <textarea id="checkoutNotes" rows="2" placeholder="أي ملاحظات إضافية للطلب"></textarea>
       </div>
       <button type="submit" class="btn-primary" style="width:100%;justify-content:center;padding:16px;font-size:16px">
         <i class="fab fa-whatsapp"></i>
-        إرسال الطلب عبر واتساب
+        إرسال الطلب
       </button>
     </form>
   </div>

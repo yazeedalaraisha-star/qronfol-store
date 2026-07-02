@@ -1,7 +1,9 @@
 class Cart {
   constructor() {
     this.items = this.loadCart();
+    this.wishlist = this.loadWishlist();
     this.renderCallbacks = [];
+    this.wishlistCallbacks = [];
   }
 
   loadCart() {
@@ -15,6 +17,70 @@ class Cart {
 
   saveCart() {
     localStorage.setItem('qronfol_cart', JSON.stringify(this.items));
+  }
+
+  loadWishlist() {
+    try {
+      const stored = localStorage.getItem('qronfol_wishlist');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  saveWishlist() {
+    localStorage.setItem('qronfol_wishlist', JSON.stringify(this.wishlist));
+  }
+
+  // Wishlist methods
+  toggleWishlist(productId) {
+    const idx = this.wishlist.indexOf(productId);
+    if (idx > -1) this.wishlist.splice(idx, 1);
+    else this.wishlist.push(productId);
+    this.saveWishlist();
+    this.notifyWishlist();
+    return this.isInWishlist(productId);
+  }
+
+  isInWishlist(productId) {
+    return this.wishlist.includes(productId);
+  }
+
+  getWishlist() {
+    return [...this.wishlist];
+  }
+
+  getWishlistCount() {
+    return this.wishlist.length;
+  }
+
+  onWishlistUpdate(callback) {
+    this.wishlistCallbacks.push(callback);
+  }
+
+  notifyWishlist() {
+    this.wishlistCallbacks.forEach(cb => cb(this));
+  }
+
+  // Reviews
+  getReviews(productId) {
+    try {
+      const all = JSON.parse(localStorage.getItem('qronfol_reviews') || '{}');
+      return all[productId] || [];
+    } catch { return []; }
+  }
+
+  addReview(productId, rating, text) {
+    const all = JSON.parse(localStorage.getItem('qronfol_reviews') || '{}');
+    if (!all[productId]) all[productId] = [];
+    all[productId].push({ rating, text, date: new Date().toISOString() });
+    localStorage.setItem('qronfol_reviews', JSON.stringify(all));
+  }
+
+  getAverageRating(productId) {
+    const reviews = this.getReviews(productId);
+    if (!reviews.length) return 0;
+    return reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
   }
 
   getItems() {

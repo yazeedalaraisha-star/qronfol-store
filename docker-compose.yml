@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  qronfol:
+    build: .
+    container_name: qronfol-store
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-qronfol2024}
+      - SESSION_SECRET=${SESSION_SECRET:-change-this-secret}
+      - MONGODB_URI=${MONGODB_URI:-}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
