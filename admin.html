@@ -1273,7 +1273,7 @@
           resetCouponForm();
           renderCoupons();
         })
-        .catch(() => alert('فشل الحفظ'));
+        .catch(err => { console.error('saveCoupon fetch error:', err); alert('فشل الحفظ: ' + (err.message || 'خطأ غير متوقع')); });
       return false;
     }
 
