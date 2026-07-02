@@ -63,6 +63,11 @@
   </style>
 </head>
 <body>
+  <div class="announcement-bar">
+    <span>🇵🇸 قرنفل — لوحة التحكم 💚</span>
+    <span class="announcement-sep">|</span>
+    <span>إدارة المتجر والطلبات والإعدادات</span>
+  </div>
   <div class="admin-layout">
     <aside class="admin-sidebar">
       <div class="logo">
@@ -231,22 +236,10 @@
         </div>
 
         <!-- Quick Stats -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px">
+        <div id="categoryStats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px">
           <div class="admin-card" style="text-align:center">
             <div style="font-size:32px;font-weight:800;color:var(--green-dark)" id="statTotal">0</div>
             <div style="color:var(--text-light);font-size:14px">إجمالي المنتجات</div>
-          </div>
-          <div class="admin-card" style="text-align:center">
-            <div style="font-size:32px;font-weight:800;color:var(--gold)" id="statAccessories">0</div>
-            <div style="color:var(--text-light);font-size:14px">إكسسوارات</div>
-          </div>
-          <div class="admin-card" style="text-align:center">
-            <div style="font-size:32px;font-weight:800;color:var(--palestine-red)" id="statApparel">0</div>
-            <div style="color:var(--text-light);font-size:14px">أزياء</div>
-          </div>
-          <div class="admin-card" style="text-align:center">
-            <div style="font-size:32px;font-weight:800;color:var(--green-mid)" id="statDecor">0</div>
-            <div style="color:var(--text-light);font-size:14px">ديكور</div>
           </div>
         </div>
 
@@ -362,8 +355,16 @@
                 <input type="text" id="cupCode" required placeholder="مثال: WELCOME10" style="direction:ltr;text-align:left;text-transform:uppercase">
               </div>
               <div class="form-group">
-                <label>نسبة الخصم (%) *</label>
-                <input type="number" id="cupDiscount" step="0.1" min="0" max="100" required placeholder="10">
+                <label>نوع الخصم</label>
+                <select id="cupType" style="width:100%;padding:12px 16px;border:1.5px solid rgba(0,0,0,0.1);border-radius:var(--radius-sm);font-family:inherit;font-size:15px;background:var(--bg-light)">
+                  <option value="percentage">نسبة مئوية (%)</option>
+                  <option value="fixed">مبلغ ثابت (JOD)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>قيمة الخصم *</label>
+                <input type="number" id="cupDiscount" step="0.1" min="0" required placeholder="مثال: 10">
+                <small style="color:var(--text-light);font-size:12px">نسبة % أو مبلغ ثابت حسب نوع الخصم</small>
               </div>
               <div class="form-group">
                 <label>أقصى استخدامات</label>
@@ -497,6 +498,33 @@
           </form>
         </div>
 
+        <!-- Categories Management -->
+        <div class="admin-card">
+          <h2><i class="fas fa-tags" style="color:var(--gold)"></i> إدارة التصنيفات</h2>
+          <p style="color:var(--text-mid);margin-bottom:16px;font-size:14px">أضف، عدل، أو احذف تصنيفات المنتجات. التصنيفات تظهر في فلتر المتجر وصفحة الإدارة.</p>
+          <form id="categoryForm" onsubmit="return saveCategory(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>الاسم (عربي) *</label>
+                <input type="text" id="catLabel" required placeholder="مثال: إكسسوارات">
+              </div>
+              <div class="form-group">
+                <label>الاسم (إنجليزي)</label>
+                <input type="text" id="catLabelEn" placeholder="مثال: Accessories">
+              </div>
+            </div>
+            <input type="hidden" id="catKey">
+            <button type="submit" class="btn-primary" style="font-size:14px;padding:10px 24px"><i class="fas fa-save"></i> حفظ التصنيف</button>
+            <span id="catStatus" style="margin-right:12px;font-size:13px;color:var(--green-mid)"></span>
+          </form>
+          <div class="table-wrap" style="margin-top:16px">
+            <table>
+              <thead><tr><th>المفتاح</th><th>الاسم (عربي)</th><th>الاسم (إنجليزي)</th><th>الإجراءات</th></tr></thead>
+              <tbody id="categoriesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Payment Settings -->
         <div class="admin-card">
           <h2><i class="fas fa-credit-card" style="color:var(--gold)"></i> إعدادات الدفع</h2>
@@ -571,17 +599,17 @@
     function renderTable() {
       ensureProducts();
       const tbody = document.getElementById('productsTableBody');
-      const stats = { total: PRODUCTS.length, accessories: 0, apparel: 0, decor: 0 };
+      const stats = { total: PRODUCTS.length };
+      adminCategories.forEach(c => stats[c.key] = 0);
       tbody.innerHTML = PRODUCTS.map(p => {
-        if (p.category === 'accessories') stats.accessories++;
-        else if (p.category === 'apparel') stats.apparel++;
-        else if (p.category === 'decor') stats.decor++;
+        if (stats[p.category] !== undefined) stats[p.category]++;
+        const catLabel = (adminCategories.find(c => c.key === p.category) || {}).label || p.category;
         const badgeHtml = p.badge ? `<span class="badge-tag ${p.badge}">${BADGE_LABELS[p.badge] || p.badge}</span>` : '—';
         const stockHtml = p.stock === null || p.stock === undefined ? 'غير محدود' : (p.stock === 0 ? '<span style="color:var(--palestine-red);font-weight:700">نفذ</span>' : p.stock);
         return `<tr>
           <td><span class="product-icon-sm"><i class="${p.icon || 'fa-solid fa-box'}"></i></span></td>
           <td><strong>${p.title}</strong><br><small style="color:var(--text-light)">${p.titleEn || ''}</small></td>
-          <td>${CATEGORIES[p.category] || p.category}</td>
+          <td>${catLabel}</td>
           <td style="direction:ltr;text-align:right">${formatPrice(p.price)}</td>
           <td>${stockHtml}</td>
           <td>${badgeHtml}</td>
@@ -593,9 +621,22 @@
         </tr>`;
       }).join('');
       document.getElementById('statTotal').textContent = stats.total;
-      document.getElementById('statAccessories').textContent = stats.accessories;
-      document.getElementById('statApparel').textContent = stats.apparel;
-      document.getElementById('statDecor').textContent = stats.decor;
+      // Build dynamic category stat boxes
+      const colors = ['var(--gold)', 'var(--palestine-red)', 'var(--green-mid)', 'var(--green-dark)', '#1e40af', '#7c3aed', '#db2777', '#ea580c'];
+      const statContainer = document.getElementById('categoryStats');
+      if (statContainer) {
+        let extraHtml = '';
+        adminCategories.forEach((c, i) => {
+          const id = 'stat_' + c.key;
+          extraHtml += `<div class="admin-card" style="text-align:center">
+            <div style="font-size:32px;font-weight:800;color:${colors[i % colors.length]}" id="${id}">${stats[c.key] || 0}</div>
+            <div style="color:var(--text-light);font-size:14px">${c.label}</div>
+          </div>`;
+        });
+        const existing = statContainer.querySelectorAll('.admin-card:not(:first-child)');
+        existing.forEach(el => el.remove());
+        if (extraHtml) statContainer.insertAdjacentHTML('beforeend', extraHtml);
+      }
     }
 
     function saveProduct(e) {
@@ -1192,7 +1233,7 @@
               const active = c.active !== false;
               return `<tr>
                 <td><strong style="direction:ltr;display:inline-block">${c.code}</strong></td>
-                <td>${c.discount}%</td>
+                <td>${c.discount}${c.type === 'fixed' ? ' JOD' : '%'}</td>
                 <td>${used} / ${max}</td>
                 <td>${c.minOrder ? c.minOrder + ' JOD' : '—'}</td>
                 <td style="font-size:13px">${exp}</td>
@@ -1215,8 +1256,11 @@
       const maxUses = parseInt(document.getElementById('cupMaxUses').value) || 0;
       const minOrder = parseFloat(document.getElementById('cupMinOrder').value) || 0;
       const expiresAt = document.getElementById('cupExpires').value;
+      const type = document.getElementById('cupType').value;
       if (!code || isNaN(discount)) { alert('يرجى تعبئة الحقول المطلوبة'); return false; }
-      const body = { code, discount, type: 'percentage', maxUses: maxUses || null, minOrder: minOrder || null, expiresAt: expiresAt || null };
+      const maxVal = type === 'percentage' ? 100 : 99999;
+      if (discount > maxVal) { alert(type === 'percentage' ? 'نسبة الخصم يجب أن تكون بين 0 و 100' : 'قيمة الخصم كبيرة جداً'); return false; }
+      const body = { code, discount, type, maxUses: maxUses || null, minOrder: minOrder || null, expiresAt: expiresAt || null };
       if (editingCouponId) { body.id = editingCouponId; }
       const method = editingCouponId ? 'PUT' : 'POST';
       const url = editingCouponId ? '/api/coupons/' + editingCouponId : '/api/coupons';
@@ -1241,6 +1285,7 @@
           editingCouponId = id;
           document.getElementById('cupCode').value = c.code;
           document.getElementById('cupDiscount').value = c.discount;
+          document.getElementById('cupType').value = c.type || 'percentage';
           document.getElementById('cupMaxUses').value = c.maxUses || '';
           document.getElementById('cupMinOrder').value = c.minOrder || '';
           document.getElementById('cupExpires').value = c.expiresAt ? c.expiresAt.split('T')[0] : '';
@@ -1274,6 +1319,102 @@
       document.querySelector('#couponForm h2').innerHTML = '<i class="fas fa-plus-circle"></i> إضافة كود خصم';
     }
 
+    // ==================== CATEGORIES ====================
+
+    let adminCategories = [];
+
+    function loadCategories() {
+      fetch('/api/payment-config')
+        .then(r => r.json())
+        .then(config => {
+          adminCategories = config.categories || [];
+          renderCategories();
+          populateCategorySelect();
+          renderTable();
+        })
+        .catch(() => {});
+    }
+
+    function renderCategories() {
+      const tbody = document.getElementById('categoriesTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = adminCategories.length
+        ? adminCategories.map(c => `<tr>
+            <td style="direction:ltr">${c.key}</td>
+            <td>${c.label}</td>
+            <td>${c.labelEn || '—'}</td>
+            <td>
+              <button class="action-btn edit" onclick="editCategory('${c.key}')"><i class="fas fa-pen"></i></button>
+              <button class="action-btn delete" onclick="deleteCategory('${c.key}')"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>`).join('')
+        : '<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--text-light)">لا توجد تصنيفات</td></tr>';
+    }
+
+    function saveCategory(e) {
+      e.preventDefault();
+      const key = document.getElementById('catKey').value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_') || (Date.now() + '');
+      const label = document.getElementById('catLabel').value.trim();
+      const labelEn = document.getElementById('catLabelEn').value.trim();
+      if (!label) { alert('يرجى إدخال اسم التصنيف'); return false; }
+      if (!key || key === 'all') { alert('المفتاح غير صالح'); return false; }
+      const existing = adminCategories.findIndex(c => c.key === key);
+      if (existing > -1) {
+        adminCategories[existing] = { key, label, labelEn };
+      } else {
+        adminCategories.push({ key, label, labelEn });
+      }
+      saveCategoriesToServer();
+      document.getElementById('catStatus').textContent = '✓ تم الحفظ';
+      setTimeout(() => document.getElementById('catStatus').textContent = '', 3000);
+      document.getElementById('categoryForm').reset();
+      document.getElementById('catKey').value = '';
+      return false;
+    }
+
+    function editCategory(key) {
+      const c = adminCategories.find(x => x.key === key);
+      if (!c) return;
+      document.getElementById('catKey').value = c.key;
+      document.getElementById('catLabel').value = c.label;
+      document.getElementById('catLabelEn').value = c.labelEn || '';
+    }
+
+    function deleteCategory(key) {
+      if (!confirm(`حذف التصنيف "${key}"؟`)) return;
+      adminCategories = adminCategories.filter(c => c.key !== key);
+      saveCategoriesToServer();
+    }
+
+    function populateCategorySelect() {
+      const sel = document.getElementById('prodCategory');
+      if (!sel) return;
+      const current = sel.value;
+      sel.innerHTML = adminCategories.map(c =>
+        `<option value="${c.key}">${c.label}</option>`
+      ).join('');
+      if (current) sel.value = current;
+    }
+
+    function saveCategoriesToServer() {
+      // Load current settings, update categories, save back
+      fetch('/api/settings')
+        .then(r => r.json())
+        .then(settings => {
+          settings.categories = adminCategories;
+          return fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(settings)
+          });
+        })
+        .then(() => {
+          renderCategories();
+          populateCategorySelect();
+        })
+        .catch(() => {});
+    }
+
     // ==================== INIT ====================
 
     document.getElementById('prodIcon').addEventListener('change', updateIconPreview);
@@ -1290,6 +1431,7 @@
 
     loadSettings();
     loadStats();
+    loadCategories();
     updateIconPreview();
     renderTable();
 

@@ -170,7 +170,7 @@ async function getMongoProducts() {
 async function getMongoSettings() {
   let s = await Settings.findOne().lean();
   if (!s) {
-    s = { whatsappNumber: '', callmebotApiKey: '', shippingCost: 2.00, freeShippingOver: 30.00, emailEnabled: false, emailHost: '', emailPort: 587, emailUser: '', emailPass: '', emailFrom: '', emailTo: '', paymentMethod: 'whatsapp', stripeKey: '', paypalClientId: '', paypalEnabled: false };
+    s = { whatsappNumber: '', callmebotApiKey: '', shippingCost: 2.00, freeShippingOver: 30.00, emailEnabled: false, emailHost: '', emailPort: 587, emailUser: '', emailPass: '', emailFrom: '', emailTo: '', paymentMethod: 'whatsapp', stripeKey: '', paypalClientId: '', paypalEnabled: false, categories: [{ key: 'accessories', label: 'إكسسوارات', labelEn: 'Accessories' }, { key: 'embroidery', label: 'تطريز', labelEn: 'Embroidery' }, { key: 'decor', label: 'ديكور', labelEn: 'Decor' }, { key: 'apparel', label: 'أزياء', labelEn: 'Apparel' }] };
     await Settings.create(s);
   }
   return s;
@@ -222,7 +222,7 @@ app.get('/api/settings', async (req, res) => {
   try {
     if (USE_MONGO) return res.json(await getMongoSettings());
     res.json(readJSON(SETTINGS_FILE));
-  } catch { res.json({ whatsappNumber: '', callmebotApiKey: '', shippingCost: 0, freeShippingOver: 0 }); }
+  } catch { res.json({ whatsappNumber: '', callmebotApiKey: '', shippingCost: 0, freeShippingOver: 0, categories: [] }); }
 });
 
 app.post('/api/settings', async (req, res) => {
@@ -588,9 +588,10 @@ app.get('/api/payment-config', async (req, res) => {
       paypalClientId: settings.paypalClientId || '',
       paypalEnabled: settings.paypalEnabled || false,
       shippingCost: settings.shippingCost || 2.00,
-      freeShippingOver: settings.freeShippingOver || 30.00
+      freeShippingOver: settings.freeShippingOver || 30.00,
+      categories: settings.categories || []
     });
-  } catch { res.json({ paymentMethod: 'whatsapp', shippingCost: 2.00, freeShippingOver: 30.00 }); }
+  } catch { res.json({ paymentMethod: 'whatsapp', shippingCost: 2.00, freeShippingOver: 30.00, categories: [] }); }
 });
 
 // ==================== Dashboard Stats API ====================
@@ -700,7 +701,7 @@ async function start() {
   if (!USE_MONGO) {
     try {
       if (!fs.existsSync(DATA_FILE)) writeJSON(DATA_FILE, getDefaultProducts());
-      if (!fs.existsSync(SETTINGS_FILE)) writeJSON(SETTINGS_FILE, { whatsappNumber: '', callmebotApiKey: '', shippingCost: 0, freeShippingOver: 0 });
+      if (!fs.existsSync(SETTINGS_FILE)) writeJSON(SETTINGS_FILE, { whatsappNumber: '', callmebotApiKey: '', shippingCost: 0, freeShippingOver: 0, categories: [{ key: 'accessories', label: 'إكسسوارات', labelEn: 'Accessories' }, { key: 'embroidery', label: 'تطريز', labelEn: 'Embroidery' }, { key: 'decor', label: 'ديكور', labelEn: 'Decor' }, { key: 'apparel', label: 'أزياء', labelEn: 'Apparel' }] });
       if (!fs.existsSync(ORDERS_FILE)) writeJSON(ORDERS_FILE, []);
       if (!fs.existsSync(COUPONS_FILE)) writeJSON(COUPONS_FILE, []);
     } catch {}
