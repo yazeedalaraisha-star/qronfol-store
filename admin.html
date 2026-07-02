@@ -1256,7 +1256,8 @@
       const maxUses = parseInt(document.getElementById('cupMaxUses').value) || 0;
       const minOrder = parseFloat(document.getElementById('cupMinOrder').value) || 0;
       const expiresAt = document.getElementById('cupExpires').value;
-      const type = document.getElementById('cupType').value;
+      const typeEl = document.getElementById('cupType');
+      const type = typeEl ? typeEl.value : 'percentage';
       if (!code || isNaN(discount)) { alert('يرجى تعبئة الحقول المطلوبة'); return false; }
       const maxVal = type === 'percentage' ? 100 : 99999;
       if (discount > maxVal) { alert(type === 'percentage' ? 'نسبة الخصم يجب أن تكون بين 0 و 100' : 'قيمة الخصم كبيرة جداً'); return false; }
