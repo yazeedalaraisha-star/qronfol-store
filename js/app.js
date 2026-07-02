@@ -315,6 +315,60 @@ window.toggleWishlist = function(productId) {
 };
 
 let shippingConfig = { shippingCost: 2.00, freeShippingOver: 30.00 };
+let appliedCoupon = null;
+
+window.applyCoupon = async function() {
+  const input = document.getElementById('checkoutCoupon');
+  const msg = document.getElementById('couponMsg');
+  const code = input.value.trim();
+  if (!code) { msg.textContent = ''; appliedCoupon = null; return; }
+  try {
+    const subtotal = cart.getTotal();
+    const res = await fetch('/api/coupons/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, subtotal })
+    });
+    const data = await res.json();
+    if (data.valid) {
+      appliedCoupon = { code: data.code, discount: data.discount, id: data.id };
+      msg.innerHTML = `<span style="color:var(--green-mid)">✓ خصم ${data.discount.toFixed(2)} JOD</span> <button onclick="removeCoupon()" style="background:none;border:none;color:var(--palestine-red);cursor:pointer;font-size:13px"><i class="fas fa-times"></i></button>`;
+      input.style.borderColor = 'var(--green-mid)';
+      updateCheckoutTotal();
+    } else {
+      appliedCoupon = null;
+      msg.innerHTML = `<span style="color:var(--palestine-red)">${data.error || 'كود غير صالح'}</span>`;
+      input.style.borderColor = 'var(--palestine-red)';
+    }
+  } catch { msg.textContent = 'خطأ في الاتصال'; }
+};
+
+window.removeCoupon = function() {
+  appliedCoupon = null;
+  document.getElementById('checkoutCoupon').value = '';
+  document.getElementById('couponMsg').textContent = '';
+  document.getElementById('checkoutCoupon').style.borderColor = '';
+  updateCheckoutTotal();
+};
+
+function updateCheckoutTotal() {
+  const subtotal = cart.getTotal();
+  const shipping = subtotal >= shippingConfig.freeShippingOver ? 0 : shippingConfig.shippingCost;
+  const discount = appliedCoupon ? appliedCoupon.discount : 0;
+  const total = Math.max(0, subtotal + shipping - discount);
+  const totalEl = document.getElementById('checkoutModalTotal');
+  if (totalEl) totalEl.textContent = formatPrice(total);
+  // Show discount line
+  const discountRow = document.getElementById('checkoutDiscountRow');
+  if (discountRow) {
+    if (discount > 0) {
+      discountRow.style.display = 'flex';
+      document.getElementById('checkoutModalDiscount').textContent = '-' + formatPrice(discount);
+    } else {
+      discountRow.style.display = 'none';
+    }
+  }
+}
 
 async function loadShippingConfig() {
   try {
@@ -352,7 +406,11 @@ function initCheckout() {
     } else {
       shippingRow.style.display = 'none';
     }
-    totalEl.textContent = formatPrice(subtotal + shipping);
+    appliedCoupon = null;
+    document.getElementById('checkoutCoupon').value = '';
+    document.getElementById('couponMsg').textContent = '';
+    document.getElementById('checkoutCoupon').style.borderColor = '';
+    updateCheckoutTotal();
     document.getElementById('checkoutOrderId').textContent = '';
     modal.classList.add('open');
     overlay.classList.add('open');
@@ -384,11 +442,18 @@ async function submitCheckout(e) {
   const subtotal = cart.getTotal();
   const shipping = subtotal >= shippingConfig.freeShippingOver ? 0 : shippingConfig.shippingCost;
 
+  const discount = appliedCoupon ? appliedCoupon.discount : 0;
+  const finalTotal = Math.max(0, subtotal + shipping - discount);
+
   const orderData = {
     name, phone, address, notes, paymentMethod,
     items: items.map(i => ({ title: i.title, quantity: i.quantity, price: i.price })),
-    total: subtotal.toFixed(2),
-    shippingCost: shipping
+    total: finalTotal.toFixed(2),
+    subtotal: subtotal.toFixed(2),
+    shippingCost: shipping,
+    discount: discount > 0 ? discount.toFixed(2) : '0',
+    couponCode: appliedCoupon ? appliedCoupon.code : '',
+    couponDiscount: discount > 0 ? discount.toFixed(2) : '0'
   };
 
   try {

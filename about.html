@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>من نحن - قرنفل | Qronfol</title>
+  <meta name="description" content="قصة قرنفل — متجر فلسطيني تراثي، خيط من تراث وقلب مع غزة">
+  <meta property="og:title" content="من نحن - قرنفل | Qronfol">
+  <meta property="og:description" content="قصة قرنفل — خيط من تراث وقلب مع غزة">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .about-page { min-height: 100vh; }
+    .about-header { background: linear-gradient(135deg, var(--green-dark), var(--green-mid)); color: white; padding: 80px 20px 60px; text-align: center; position: relative; overflow: hidden; }
+    .about-header::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); opacity: 0.5; }
+    .about-header .container { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+    .about-header h1 { font-family: var(--font-heading); font-size: 42px; font-weight: 800; margin-bottom: 12px; }
+    .about-header .subtitle { font-size: 18px; opacity: 0.85; margin-bottom: 8px; }
+    .about-header .quote { font-size: 15px; opacity: 0.7; font-style: italic; }
+    .about-story { max-width: 720px; margin: -40px auto 0; background: white; border-radius: var(--radius); box-shadow: var(--shadow-hover); padding: 48px 40px; position: relative; }
+    .about-story p { font-size: 17px; line-height: 2; color: var(--text-dark); margin-bottom: 20px; }
+    .about-story .highlight { color: var(--green-mid); font-weight: 700; }
+    .about-story .divider { text-align: center; margin: 32px 0; color: var(--gold); font-size: 24px; }
+    .about-mission { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; max-width: 900px; margin: 48px auto; padding: 0 20px; }
+    .about-mission .card { background: white; border-radius: var(--radius); padding: 32px 24px; text-align: center; box-shadow: var(--shadow); }
+    .about-mission .card i { font-size: 36px; color: var(--gold); margin-bottom: 16px; }
+    .about-mission .card h3 { font-family: var(--font-heading); font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .about-mission .card p { font-size: 14px; color: var(--text-mid); line-height: 1.8; }
+    .about-footer-cta { text-align: center; padding: 60px 20px; background: var(--bg-light); }
+    .about-footer-cta h2 { font-family: var(--font-heading); font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+    .about-footer-cta p { color: var(--text-mid); margin-bottom: 24px; font-size: 16px; }
+    .about-footer-cta .btn-primary { display: inline-flex; align-items: center; gap: 10px; padding: 14px 32px; font-size: 16px; }
+    .about-instagram { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 24px; font-size: 15px; }
+    .about-instagram a { color: var(--green-mid); font-weight: 700; text-decoration: underline; }
+    @media (max-width: 768px) {
+      .about-header h1 { font-size: 30px; }
+      .about-story { padding: 32px 20px; margin: -30px 16px 0; }
+      .about-story p { font-size: 15px; }
+      .about-mission { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <span>🇵🇸 خيطٌ من تراث .. وقلبٌ مع غزة 💚</span>
+    <span class="announcement-sep">|</span>
+    <span>التوصيل لكل الأردن 🇯🇴</span>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="container header-inner">
+      <div class="logo">
+        <a href="/"><h1>قرنفل</h1><span class="logo-sub">Qronfol</span></a>
+      </div>
+      <nav class="nav">
+        <a href="/" class="nav-link">المنتجات</a>
+        <a href="/about.html" class="nav-link active">عن قرنفل</a>
+        <a href="/#contact" class="nav-link">اتصل بنا</a>
+      </nav>
+      <div class="header-actions">
+        <button class="cart-btn" id="cartBtn" aria-label="عربة التسوق" onclick="window.location.href='/'">
+          <i class="fas fa-shopping-bag"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- About Hero -->
+  <section class="about-page">
+    <div class="about-header">
+      <div class="container">
+        <h1>قصة قرنفل</h1>
+        <p class="subtitle">خيطٌ من تراث .. وقلبٌ مع غزة</p>
+        <p class="quote">@qronfol_by_razan</p>
+      </div>
+    </div>
+
+    <!-- Story Card -->
+    <div class="about-story">
+      <p>
+        <span class="highlight">قرنفل</span> صفحة بلشت لتعبر عن حبي للتطريز الفلسطيني 
+        وإيماني بإنه الخيط مش بس هوية .. هو كمان ممكن يكون وسيلة 
+        <span class="highlight">دعم</span> و<span class="highlight">أمل</span>.
+      </p>
+
+      <div class="divider">✦ ◇ ✦</div>
+
+      <p>
+        بقّدم قطع تطريز فلسطيني يدوي لتكون حاضرة معكم، 
+        ورح أخصص جزء من الأرباح <span class="highlight">لدعم أهل غزة</span> 
+        ومساعدتهم في مواجهة برد الشتاء وإعادة <span class="highlight">الإعمار</span>.
+      </p>
+
+      <div class="divider">✦ ◇ ✦</div>
+
+      <p>
+        بشرائكم قطعة تطريز .. أنتم تشاركون في <span class="highlight">الحفاظ على التراث</span> 
+        و<span class="highlight">مساندة أهلنا</span> 
+        وبناء بلدنا اللي بإذن الله رح نرجع عليها <span class="highlight">منتصرين</span>.
+      </p>
+
+      <div class="divider">🇵🇸</div>
+
+      <p style="text-align:center;font-size:15px;color:var(--text-light)">
+        هاي هي نبذتنا .. شكراً إنكم معنا 💚
+      </p>
+    </div>
+
+    <!-- Mission Cards -->
+    <div class="about-mission">
+      <div class="card">
+        <i class="fas fa-hand-holding-heart"></i>
+        <h3>من القلب</h3>
+        <p>كل قطعة مصنوعة يدويًا بعناية وحب، من قلب ينبض بفلسطين</p>
+      </div>
+      <div class="card">
+        <i class="fas fa-tree"></i>
+        <h3>تراث لا يموت</h3>
+        <p>نحافظ على التطريز الفلسطيني الأصيل وننقله للأجيال الجديدة</p>
+      </div>
+      <div class="card">
+        <i class="fas fa-hand-peace"></i>
+        <h3>دعم وأمل</h3>
+        <p>جزء من الأرباح لدعم صمود أهلنا في غزة ومساعدتهم</p>
+      </div>
+    </div>
+
+    <!-- Instagram CTA -->
+    <div class="about-footer-cta">
+      <h2>تابعونا على إنستغرام</h2>
+      <p>كل القطع الجديدة والعروض الحصرية على صفحتنا</p>
+      <a href="https://instagram.com/qronfol_by_razan" target="_blank" class="btn-primary" style="display:inline-flex;align-items:center;gap:10px;padding:14px 32px;font-size:16px">
+        <i class="fab fa-instagram"></i> @qronfol_by_razan
+      </a>
+      <div class="about-instagram">
+        <i class="fas fa-arrow-left" style="color:var(--gold)"></i>
+        <a href="/">تسوق المنتجات</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-brand">
+        <h3>قرنفل</h3>
+        <p>خيطٌ من تراث .. وقلبٌ مع غزة 💚🇵🇸</p>
+        <p class="footer-copyright">© قرنفل | جميع الحقوق محفوظة</p>
+      </div>
+      <div class="footer-links">
+        <a href="/">المنتجات</a>
+        <a href="/about.html">عن قرنفل</a>
+        <a href="/#contact">اتصل بنا</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

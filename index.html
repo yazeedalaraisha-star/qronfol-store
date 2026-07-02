@@ -44,11 +44,12 @@
         </a>
       </div>
       <nav class="nav">
-        <a href="#products" class="nav-link active">المنتجات</a>
-        <a href="#about" class="nav-link">عن قرنفل</a>
-        <a href="#contact" class="nav-link">اتصل بنا</a>
+        <a href="#products" class="nav-link active" data-i18n="navProducts">المنتجات</a>
+        <a href="#about" class="nav-link" data-i18n="navAbout">عن قرنفل</a>
+        <a href="#contact" class="nav-link" data-i18n="navContact">اتصل بنا</a>
       </nav>
       <div class="header-actions">
+        <button class="lang-toggle" id="langToggle" aria-label="Toggle language" style="background:none;border:1.5px solid var(--gold);color:var(--gold);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:var(--transition)">EN</button>
         <button class="wishlist-btn" id="wishlistBtn" aria-label="المفضلة" title="المفضلة">
           <i class="far fa-heart"></i>
           <span class="wishlist-count" id="wishlistCount">0</span>
@@ -66,18 +67,18 @@
 
   <!-- Mobile Nav -->
   <div class="mobile-nav" id="mobileNav">
-    <a href="#products" class="mobile-nav-link">المنتجات</a>
-    <a href="#about" class="mobile-nav-link">عن قرنفل</a>
-    <a href="#contact" class="mobile-nav-link">اتصل بنا</a>
+    <a href="#products" class="mobile-nav-link" data-i18n="navProducts">المنتجات</a>
+    <a href="#about" class="mobile-nav-link" data-i18n="navAbout">عن قرنفل</a>
+    <a href="#contact" class="mobile-nav-link" data-i18n="navContact">اتصل بنا</a>
   </div>
 
   <!-- Hero Section -->
   <section class="hero">
     <div class="container hero-content">
       <div class="hero-text">
-        <h2>خيطٌ من تراث ..<br>وقلبٌ مع غزة</h2>
-        <p>من الأردن إلى العالم، نقدم لك قطعًا تراثية تحكي قصص فلسطين، woven بحب ودعم لصمود غزة 🇵🇸💚</p>
-        <a href="#products" class="btn-primary">
+        <h2 data-i18n="heroTitle">خيطٌ من تراث ..<br>وقلبٌ مع غزة</h2>
+        <p data-i18n="heroDesc">من الأردن إلى العالم، نقدم لك قطعًا تراثية تحكي قصص فلسطين، woven بحب ودعم لصمود غزة 🇵🇸💚</p>
+        <a href="#products" class="btn-primary" data-i18n="heroBtn">
           تسوق الآن
           <i class="fas fa-arrow-left"></i>
         </a>
@@ -92,8 +93,8 @@
   <section class="products-section" id="products">
     <div class="container">
       <div class="section-header">
-        <h2>منتجاتنا</h2>
-        <p>كل قطعة تحكي قصة تراث وتمسك بالأرض</p>
+        <h2 data-i18n="sectionProducts">منتجاتنا</h2>
+        <p data-i18n="sectionProductsSub">كل قطعة تحكي قصة تراث وتمسك بالأرض</p>
       </div>
 
       <!-- Search + Sort + Categories Filter -->
@@ -236,6 +237,11 @@
           <p>ننتج ونشحن من الأردن، ونسعى لنشر التراث الفلسطيني في كل مكان</p>
         </div>
       </div>
+      <div style="text-align:center;margin-top:24px">
+        <a href="/about.html" class="btn-outline" style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;font-size:15px">
+          <i class="fas fa-book-open"></i> اقرأ قصتنا كاملة
+        </a>
+      </div>
     </div>
   </section>
 
@@ -288,6 +294,7 @@
       <div class="footer-links">
         <a href="#products">المنتجات</a>
         <a href="#about">عن قرنفل</a>
+        <a href="/about.html">قصة قرنفل</a>
         <a href="#contact">اتصل بنا</a>
       </div>
     </div>
@@ -342,6 +349,15 @@
       <div class="checkout-total" id="checkoutShippingRow" style="display:none">
         <span>التوصيل</span>
         <span id="checkoutModalShipping">0 JOD</span>
+      </div>
+      <div class="checkout-total" id="checkoutDiscountRow" style="display:none;color:var(--green-mid)">
+        <span>الخصم</span>
+        <span id="checkoutModalDiscount">-0 JOD</span>
+      </div>
+      <div class="checkout-coupon" style="display:flex;gap:8px;margin:12px 0;align-items:center">
+        <input type="text" id="checkoutCoupon" placeholder="كود خصم" style="flex:1;padding:10px 14px;border:1.5px solid rgba(0,0,0,0.1);border-radius:var(--radius-sm);font-family:inherit;font-size:14px;direction:ltr;text-align:left;text-transform:uppercase">
+        <button type="button" onclick="applyCoupon()" class="btn-outline" style="font-size:13px;padding:10px 18px;white-space:nowrap"><i class="fas fa-check"></i> تطبيق</button>
+        <span id="couponMsg" style="font-size:13px;font-weight:600"></span>
       </div>
       <div class="checkout-total" style="font-size:22px;border-top:2px solid var(--green-dark);padding-top:12px;margin-top:8px">
         <span>الإجمالي</span>
@@ -400,6 +416,7 @@
     </div>
   </div>
 
+  <script src="js/i18n.js"></script>
   <script src="js/products.js"></script>
   <script src="js/cart.js"></script>
   <script src="js/app.js"></script>

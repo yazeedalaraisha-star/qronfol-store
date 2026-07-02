@@ -9,7 +9,7 @@ const PRODUCTS_STATIC = [
     category: 'accessories',
     badge: 'best',
     icon: 'fa-regular fa-hand-peace',
-    image: '', tags: ['handmade', 'gift']
+    image: 'https://images.unsplash.com/photo-1590041794748-2d8eb73a571c?w=400&h=400&fit=crop&auto=format&q=80', tags: ['handmade', 'gift']
   },
   {
     id: 2,
@@ -21,7 +21,7 @@ const PRODUCTS_STATIC = [
     category: 'accessories',
     badge: '',
     icon: 'fa-solid fa-key',
-    image: '', tags: ['gift']
+    image: 'https://images.unsplash.com/photo-1590041794748-2d8eb73a571c?w=400&h=400&fit=crop&auto=format&q=80', tags: ['gift']
   },
   {
     id: 3,
@@ -33,7 +33,7 @@ const PRODUCTS_STATIC = [
     category: 'embroidery',
     badge: 'sale',
     icon: 'fa-solid fa-needle',
-    image: ''
+    image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop&auto=format&q=80'
   },
   {
     id: 4,
@@ -45,7 +45,7 @@ const PRODUCTS_STATIC = [
     category: 'decor',
     badge: 'new',
     icon: 'fa-regular fa-building',
-    image: ''
+    image: 'https://images.unsplash.com/photo-1601024448722-5b38a2f9ceed?w=400&h=400&fit=crop&auto=format&q=80'
   },
   {
     id: 5,
@@ -57,7 +57,7 @@ const PRODUCTS_STATIC = [
     category: 'apparel',
     badge: '',
     icon: 'fa-solid fa-shirt',
-    image: ''
+    image: 'https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=400&h=400&fit=crop&auto=format&q=80'
   },
   {
     id: 6,
@@ -69,7 +69,7 @@ const PRODUCTS_STATIC = [
     category: 'accessories',
     badge: '',
     icon: 'fa-solid fa-tree',
-    image: ''
+    image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&h=400&fit=crop&auto=format&q=80'
   },
   {
     id: 7,
@@ -81,7 +81,7 @@ const PRODUCTS_STATIC = [
     category: 'decor',
     badge: 'best',
     icon: 'fa-solid fa-key',
-    image: ''
+    image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop&auto=format&q=80'
   },
   {
     id: 8,
@@ -93,7 +93,7 @@ const PRODUCTS_STATIC = [
     category: 'apparel',
     badge: 'sale',
     icon: 'fa-solid fa-user-tie',
-    image: ''
+    image: 'https://images.unsplash.com/photo-1574027551686-5e80a7a6d72e?w=400&h=400&fit=crop&auto=format&q=80'
   },
   {
     id: 9,
@@ -105,7 +105,7 @@ const PRODUCTS_STATIC = [
     category: 'accessories',
     badge: '',
     icon: 'fa-solid fa-bag-shopping',
-    image: ''
+    image: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?w=400&h=400&fit=crop&auto=format&q=80'
   },
   {
     id: 10,
@@ -117,7 +117,7 @@ const PRODUCTS_STATIC = [
     category: 'decor',
     badge: 'new',
     icon: 'fa-solid fa-thumbtack',
-    image: ''
+    image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop&auto=format&q=80'
   },
   {
     id: 11,
@@ -129,7 +129,7 @@ const PRODUCTS_STATIC = [
     category: 'apparel',
     badge: '',
     icon: 'fa-solid fa-hat-cowboy',
-    image: ''
+    image: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&h=400&fit=crop&auto=format&q=80'
   },
   {
     id: 12,
@@ -141,7 +141,7 @@ const PRODUCTS_STATIC = [
     category: 'decor',
     badge: '',
     icon: 'fa-regular fa-image',
-    image: ''
+    image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&h=400&fit=crop&auto=format&q=80'
   },
   {
     id: 13,
@@ -153,7 +153,7 @@ const PRODUCTS_STATIC = [
     category: 'accessories',
     badge: '',
     icon: 'fa-solid fa-dharmachakra',
-    image: ''
+    image: 'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=400&h=400&fit=crop&auto=format&q=80'
   },
   {
     id: 14,
@@ -165,7 +165,7 @@ const PRODUCTS_STATIC = [
     category: 'decor',
     badge: '',
     icon: 'fa-solid fa-mug-saucer',
-    image: ''
+    image: 'https://images.unsplash.com/photo-1612966878609-5e055b468499?w=400&h=400&fit=crop&auto=format&q=80'
   },
   {
     id: 15,
@@ -177,7 +177,7 @@ const PRODUCTS_STATIC = [
     category: 'apparel',
     badge: 'new',
     icon: 'fa-solid fa-scarf',
-    image: ''
+    image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=400&h=400&fit=crop&auto=format&q=80'
   },
   {
     id: 16,
@@ -189,7 +189,7 @@ const PRODUCTS_STATIC = [
     category: 'decor',
     badge: 'best',
     icon: 'fa-regular fa-map',
-    image: ''
+    image: 'https://images.unsplash.com/photo-1601370690183-1c7796ecec61?w=400&h=400&fit=crop&auto=format&q=80'
   }
 ];
 
@@ -277,3 +277,4 @@ function formatPrice(price) {
 function getProductIcon(icon) {
   return icon || 'fa-solid fa-box';
 }
+

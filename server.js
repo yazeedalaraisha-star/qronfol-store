@@ -18,6 +18,7 @@ const SESSION_SECRET = process.env.SESSION_SECRET || 'qronfol-secret-key-change-
 const DATA_FILE = path.join(__dirname, 'data', 'products.json');
 const SETTINGS_FILE = path.join(__dirname, 'data', 'settings.json');
 const ORDERS_FILE = path.join(__dirname, 'data', 'orders.json');
+const COUPONS_FILE = path.join(__dirname, 'data', 'coupons.json');
 const USE_MONGO = !!MONGODB_URI;
 
 // Security
@@ -120,28 +121,28 @@ function writeJSON(file, data) {
 
 function getDefaultProducts() {
   return [
-    { id: 1, title: 'وشاح الكوفية الفلسطينية', titleEn: 'Palestinian Keffiyeh', description: 'كوفية فلسطينية أصلية بتطريز يدوي، رمز التراث والهوية', price: 15.00, oldPrice: null, category: 'accessories', badge: 'best', icon: 'fa-regular fa-hand-peace', image: 'https://images.unsplash.com/photo-1590041794748-2d8eb73a571c?w=400&h=400&fit=crop', stock: null, tags: ['handmade', 'gift'] },
-    { id: 2, title: 'سلسلة مفاتيح "غزة في القلب"', titleEn: '"Gaza in Heart" Keychain', description: 'سلسلة مفاتيح خشبية محفورة بعبارة "غزة في القلب"', price: 8.00, oldPrice: null, category: 'accessories', badge: '', icon: 'fa-solid fa-key', image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop', stock: null, tags: ['gift'] },
-    { id: 3, title: 'طقم تطريز فلسطيني', titleEn: 'Palestinian Embroidery Kit', description: 'طقم تطريز متكامل يحتوي على خيوط وإبرة وقطن للتطريز', price: 25.00, oldPrice: 30.00, category: 'embroidery', badge: 'sale', icon: 'fa-solid fa-needle', image: 'https://images.unsplash.com/photo-1601024448722-5b38a2f9ceed?w=400&h=400&fit=crop', stock: null },
-    { id: 4, title: 'برواز تراثي "القدس"', titleEn: '"Jerusalem" Heritage Frame', description: 'برواز بقبة الصخرة مصنوع يدويًا بتفاصيل تراثية', price: 22.00, oldPrice: null, category: 'decor', badge: 'new', icon: 'fa-regular fa-building', image: 'https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=400&h=400&fit=crop', stock: null },
-    { id: 5, title: 'تيشيرت "فلسطين"', titleEn: '"Palestine" T-Shirt', description: 'تيشيرت قطني بطباعة عالية الجودة لخريطة فلسطين', price: 18.00, oldPrice: null, category: 'apparel', badge: '', icon: 'fa-solid fa-shirt', image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&h=400&fit=crop', stock: null },
-    { id: 6, title: 'سوار الزيتون', titleEn: 'Olive Bracelet', description: 'سوار جلدي بحبة زيتون فضية، رمز الأرض المباركة', price: 12.00, oldPrice: null, category: 'accessories', badge: '', icon: 'fa-solid fa-tree', image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop', stock: null },
-    { id: 7, title: 'قطعة ديكور "مفتاح العودة"', titleEn: '"Key of Return" Decor', description: 'مفتاح العودة الخشبي المطلي بالذهب، رمز الحق الفلسطيني', price: 18.00, oldPrice: null, category: 'decor', badge: 'best', icon: 'fa-solid fa-key', image: 'https://images.unsplash.com/photo-1574027551686-5e80a7a6d72e?w=400&h=400&fit=crop', stock: null },
-    { id: 8, title: 'عباية مطرزة', titleEn: 'Embroidered Abaya', description: 'عباية سوداء بتطريز فلسطيني أصيل على الأكمام', price: 45.00, oldPrice: 55.00, category: 'apparel', badge: 'sale', icon: 'fa-solid fa-user-tie', image: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?w=400&h=400&fit=crop', stock: null },
-    { id: 9, title: 'حقيبة "تراث"', titleEn: '"Turath" Bag', description: 'حقيبة يد قماشية بتطريز فلسطيني ورسومات تراثية', price: 20.00, oldPrice: null, category: 'accessories', badge: '', icon: 'fa-solid fa-bag-shopping', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop', stock: null },
-    { id: 10, title: 'magnet الثورة', titleEn: 'Revolution Magnet', description: 'مغناطيس ثلاجة بتصميم علم فلسطين ورسالة دعم', price: 5.00, oldPrice: null, category: 'decor', badge: 'new', icon: 'fa-solid fa-thumbtack', image: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&h=400&fit=crop', stock: null },
-    { id: 11, title: 'طاقية مطرزة', titleEn: 'Embroidered Cap', description: 'طاقية بيسبول بتطريز أسود اللون وزهرة فلسطين', price: 14.00, oldPrice: null, category: 'apparel', badge: '', icon: 'fa-solid fa-hat-cowboy', image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&h=400&fit=crop', stock: null },
-    { id: 12, title: 'لوحة جدارية "الأقصى"', titleEn: '"Al-Aqsa" Wall Art', description: 'لوحة جدارية للمسجد الأقصى بتقنية الرسم الزيتي', price: 30.00, oldPrice: null, category: 'decor', badge: '', icon: 'fa-regular fa-image', image: 'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=400&h=400&fit=crop', stock: null },
-    { id: 13, title: 'مسبحة خشب الزيتون', titleEn: 'Olive Wood Rosary', description: 'مسبحة من خشب الزيتون المقدس من فلسطين', price: 10.00, oldPrice: null, category: 'accessories', badge: '', icon: 'fa-solid fa-dharmachakra', image: 'https://images.unsplash.com/photo-1612966878609-5e055b468499?w=400&h=400&fit=crop', stock: null },
-    { id: 14, title: 'طقم كاسات "تراثي"', titleEn: 'Heritage Cup Set', description: 'طقم 4 كاسات سيراميك برسومات تراثية فلسطينية', price: 16.00, oldPrice: null, category: 'decor', badge: '', icon: 'fa-solid fa-mug-saucer', image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=400&h=400&fit=crop', stock: null },
-    { id: 15, title: 'إيشارب حرير مطبوع', titleEn: 'Printed Silk Scarf', description: 'إيشارب حريري بطبعة علم فلسطين وتصاميم تراثية', price: 12.00, oldPrice: null, category: 'apparel', badge: 'new', icon: 'fa-solid fa-scarf', image: 'https://images.unsplash.com/photo-1601370690183-1c7796ecec61?w=400&h=400&fit=crop', stock: null },
-    { id: 16, title: 'قطعة ديكور "أرضنا"', titleEn: '"Our Land" Decor Piece', description: 'مجسم خشبي لخريطة فلسطين مع أسماء المدن', price: 28.00, oldPrice: null, category: 'decor', badge: 'best', icon: 'fa-regular fa-map', image: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&h=400&fit=crop', stock: null }
+    { id: 1, title: 'وشاح الكوفية الفلسطينية', titleEn: 'Palestinian Keffiyeh', description: 'كوفية فلسطينية أصلية بتطريز يدوي، رمز التراث والهوية', price: 15.00, oldPrice: null, category: 'accessories', badge: 'best', icon: 'fa-regular fa-hand-peace', image: 'https://images.unsplash.com/photo-1590041794748-2d8eb73a571c?w=400&h=400&fit=crop&auto=format&q=80', stock: null, tags: ['handmade', 'gift'] },
+    { id: 2, title: 'سلسلة مفاتيح "غزة في القلب"', titleEn: '"Gaza in Heart" Keychain', description: 'سلسلة مفاتيح خشبية محفورة بعبارة "غزة في القلب"', price: 8.00, oldPrice: null, category: 'accessories', badge: '', icon: 'fa-solid fa-key', image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop&auto=format&q=80', stock: null, tags: ['gift'] },
+    { id: 3, title: 'طقم تطريز فلسطيني', titleEn: 'Palestinian Embroidery Kit', description: 'طقم تطريز متكامل يحتوي على خيوط وإبرة وقطن للتطريز', price: 25.00, oldPrice: 30.00, category: 'embroidery', badge: 'sale', icon: 'fa-solid fa-needle', image: 'https://images.unsplash.com/photo-1601024448722-5b38a2f9ceed?w=400&h=400&fit=crop&auto=format&q=80', stock: null },
+    { id: 4, title: 'برواز تراثي "القدس"', titleEn: '"Jerusalem" Heritage Frame', description: 'برواز بقبة الصخرة مصنوع يدويًا بتفاصيل تراثية', price: 22.00, oldPrice: null, category: 'decor', badge: 'new', icon: 'fa-regular fa-building', image: 'https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=400&h=400&fit=crop&auto=format&q=80', stock: null },
+    { id: 5, title: 'تيشيرت "فلسطين"', titleEn: '"Palestine" T-Shirt', description: 'تيشيرت قطني بطباعة عالية الجودة لخريطة فلسطين', price: 18.00, oldPrice: null, category: 'apparel', badge: '', icon: 'fa-solid fa-shirt', image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&h=400&fit=crop&auto=format&q=80', stock: null },
+    { id: 6, title: 'سوار الزيتون', titleEn: 'Olive Bracelet', description: 'سوار جلدي بحبة زيتون فضية، رمز الأرض المباركة', price: 12.00, oldPrice: null, category: 'accessories', badge: '', icon: 'fa-solid fa-tree', image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop&auto=format&q=80', stock: null },
+    { id: 7, title: 'قطعة ديكور "مفتاح العودة"', titleEn: '"Key of Return" Decor', description: 'مفتاح العودة الخشبي المطلي بالذهب، رمز الحق الفلسطيني', price: 18.00, oldPrice: null, category: 'decor', badge: 'best', icon: 'fa-solid fa-key', image: 'https://images.unsplash.com/photo-1574027551686-5e80a7a6d72e?w=400&h=400&fit=crop&auto=format&q=80', stock: null },
+    { id: 8, title: 'عباية مطرزة', titleEn: 'Embroidered Abaya', description: 'عباية سوداء بتطريز فلسطيني أصيل على الأكمام', price: 45.00, oldPrice: 55.00, category: 'apparel', badge: 'sale', icon: 'fa-solid fa-user-tie', image: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?w=400&h=400&fit=crop&auto=format&q=80', stock: null },
+    { id: 9, title: 'حقيبة "تراث"', titleEn: '"Turath" Bag', description: 'حقيبة يد قماشية بتطريز فلسطيني ورسومات تراثية', price: 20.00, oldPrice: null, category: 'accessories', badge: '', icon: 'fa-solid fa-bag-shopping', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop&auto=format&q=80', stock: null },
+    { id: 10, title: 'magnet الثورة', titleEn: 'Revolution Magnet', description: 'مغناطيس ثلاجة بتصميم علم فلسطين ورسالة دعم', price: 5.00, oldPrice: null, category: 'decor', badge: 'new', icon: 'fa-solid fa-thumbtack', image: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&h=400&fit=crop&auto=format&q=80', stock: null },
+    { id: 11, title: 'طاقية مطرزة', titleEn: 'Embroidered Cap', description: 'طاقية بيسبول بتطريز أسود اللون وزهرة فلسطين', price: 14.00, oldPrice: null, category: 'apparel', badge: '', icon: 'fa-solid fa-hat-cowboy', image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&h=400&fit=crop&auto=format&q=80', stock: null },
+    { id: 12, title: 'لوحة جدارية "الأقصى"', titleEn: '"Al-Aqsa" Wall Art', description: 'لوحة جدارية للمسجد الأقصى بتقنية الرسم الزيتي', price: 30.00, oldPrice: null, category: 'decor', badge: '', icon: 'fa-regular fa-image', image: 'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=400&h=400&fit=crop&auto=format&q=80', stock: null },
+    { id: 13, title: 'مسبحة خشب الزيتون', titleEn: 'Olive Wood Rosary', description: 'مسبحة من خشب الزيتون المقدس من فلسطين', price: 10.00, oldPrice: null, category: 'accessories', badge: '', icon: 'fa-solid fa-dharmachakra', image: 'https://images.unsplash.com/photo-1612966878609-5e055b468499?w=400&h=400&fit=crop&auto=format&q=80', stock: null },
+    { id: 14, title: 'طقم كاسات "تراثي"', titleEn: 'Heritage Cup Set', description: 'طقم 4 كاسات سيراميك برسومات تراثية فلسطينية', price: 16.00, oldPrice: null, category: 'decor', badge: '', icon: 'fa-solid fa-mug-saucer', image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=400&h=400&fit=crop&auto=format&q=80', stock: null },
+    { id: 15, title: 'إيشارب حرير مطبوع', titleEn: 'Printed Silk Scarf', description: 'إيشارب حريري بطبعة علم فلسطين وتصاميم تراثية', price: 12.00, oldPrice: null, category: 'apparel', badge: 'new', icon: 'fa-solid fa-scarf', image: 'https://images.unsplash.com/photo-1601370690183-1c7796ecec61?w=400&h=400&fit=crop&auto=format&q=80', stock: null },
+    { id: 16, title: 'قطعة ديكور "أرضنا"', titleEn: '"Our Land" Decor Piece', description: 'مجسم خشبي لخريطة فلسطين مع أسماء المدن', price: 28.00, oldPrice: null, category: 'decor', badge: 'best', icon: 'fa-regular fa-map', image: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&h=400&fit=crop&auto=format&q=80', stock: null }
   ];
 }
 
 // ==================== MongoDB Schema ====================
 
-let Product, Order, Settings;
+let Product, Order, Settings, Coupon;
 
 if (USE_MONGO) {
   const productSchema = new mongoose.Schema({ id: Number, title: String, titleEn: String, description: String, price: Number, oldPrice: Number, category: String, badge: String, icon: String, image: String, stock: Number, tags: [String], story: [mongoose.Schema.Types.Mixed] }, { collection: 'products' });
@@ -153,9 +154,11 @@ if (USE_MONGO) {
     paymentMethod: String, stripeKey: String, paypalClientId: String, paypalEnabled: Boolean
   }, { collection: 'settings' });
 
+  const couponSchema = new mongoose.Schema({ id: Number, code: String, discount: Number, type: { type: String, default: 'percentage' }, maxUses: Number, usedCount: { type: Number, default: 0 }, minOrder: Number, expiresAt: String, active: { type: Boolean, default: true } }, { collection: 'coupons' });
   Product = mongoose.model('Product', productSchema);
   Order = mongoose.model('Order', orderSchema);
   Settings = mongoose.model('Settings', settingsSchema);
+  Coupon = mongoose.model('Coupon', couponSchema);
 }
 
 async function getMongoProducts() {
@@ -263,7 +266,10 @@ app.post('/api/order', async (req, res) => {
       paymentMethod: paymentMethod || 'whatsapp',
       paymentStatus: paymentMethod && paymentMethod !== 'whatsapp' ? 'pending' : 'paid',
       createdAt: new Date().toISOString(),
-      status: 'جديد'
+      status: 'جديد',
+      couponCode: req.body.couponCode || '',
+      couponDiscount: req.body.couponDiscount || '0',
+      discount: parseFloat(req.body.discount || req.body.couponDiscount || '0').toFixed(2)
     };
 
     // Save order
@@ -274,6 +280,19 @@ app.post('/api/order', async (req, res) => {
       orders.unshift(order);
       writeJSON(ORDERS_FILE, orders);
     }
+    // Increment coupon usage
+    if (order.couponCode) {
+      try {
+        if (USE_MONGO) {
+          await Coupon.findOneAndUpdate({ code: order.couponCode }, { $inc: { usedCount: 1 } });
+        } else {
+          const coupons = readJSON(COUPONS_FILE);
+          const cIdx = coupons.findIndex(c => c.code.toUpperCase() === order.couponCode.toUpperCase());
+          if (cIdx > -1) { coupons[cIdx].usedCount = (coupons[cIdx].usedCount || 0) + 1; writeJSON(COUPONS_FILE, coupons); }
+        }
+      } catch {}
+    }
+
     console.log(`[ORDER] #${order.id} — ${name} — ${grandTotal.toFixed(2)} JOD`);
 
     // Build WhatsApp message
@@ -298,6 +317,7 @@ app.post('/api/order', async (req, res) => {
       `━━━━━━━━━━━━━━━━\n` +
       `💵 *المجموع الفرعي:* ${subtotal.toFixed(2)} JOD\n` +
       shippingLine +
+      (order.discount && parseFloat(order.discount) > 0 ? `💰 *الخصم:* -${order.discount} JOD${order.couponCode ? ' (كود: ' + order.couponCode + ')' : ''}\n` : '') +
       `💵 *الإجمالي:* ${grandTotal.toFixed(2)} JOD\n` +
       `━━━━━━━━━━━━━━━━\n` +
       `✅ *الحالة:* جديد\n` +
@@ -493,6 +513,68 @@ async function sendEmailNotification(order, settings) {
   }
 }
 
+// ==================== Coupons API ====================
+
+app.get('/api/coupons', async (req, res) => {
+  try {
+    if (USE_MONGO) return res.json(await Coupon.find().lean());
+    if (!fs.existsSync(COUPONS_FILE)) writeJSON(COUPONS_FILE, []);
+    res.json(readJSON(COUPONS_FILE));
+  } catch { res.json([]); }
+});
+
+app.post('/api/coupons', async (req, res) => {
+  try {
+    const coupon = { id: Date.now(), ...req.body, active: true, usedCount: 0 };
+    if (USE_MONGO) { await Coupon.create(coupon); return res.json({ success: true, coupon }); }
+    const list = readJSON(COUPONS_FILE);
+    list.push(coupon);
+    writeJSON(COUPONS_FILE, list);
+    res.json({ success: true, coupon });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.put('/api/coupons/:id', async (req, res) => {
+  try {
+    if (USE_MONGO) { await Coupon.findOneAndUpdate({ id: req.params.id }, req.body); return res.json({ success: true }); }
+    const list = readJSON(COUPONS_FILE);
+    const idx = list.findIndex(c => c.id == req.params.id);
+    if (idx === -1) return res.status(404).json({ error: 'Not found' });
+    list[idx] = { ...list[idx], ...req.body };
+    writeJSON(COUPONS_FILE, list);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/api/coupons/:id', async (req, res) => {
+  try {
+    if (USE_MONGO) { await Coupon.deleteOne({ id: req.params.id }); return res.json({ success: true }); }
+    const list = readJSON(COUPONS_FILE);
+    writeJSON(COUPONS_FILE, list.filter(c => c.id != req.params.id));
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/coupons/validate', async (req, res) => {
+  try {
+    const { code, subtotal } = req.body;
+    if (!code) return res.json({ valid: false, error: 'أدخل كود الخصم' });
+    let coupons;
+    if (USE_MONGO) coupons = await Coupon.find().lean();
+    else {
+      if (!fs.existsSync(COUPONS_FILE)) writeJSON(COUPONS_FILE, []);
+      coupons = readJSON(COUPONS_FILE);
+    }
+    const coupon = coupons.find(c => c.code.toUpperCase() === code.toUpperCase() && c.active !== false);
+    if (!coupon) return res.json({ valid: false, error: 'كود الخصم غير صالح' });
+    if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) return res.json({ valid: false, error: 'انتهت صلاحية الكود' });
+    if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) return res.json({ valid: false, error: 'تم استنفاذ عدد استخدامات الكود' });
+    if (coupon.minOrder && (parseFloat(subtotal) || 0) < coupon.minOrder) return res.json({ valid: false, error: `الحد الأدنى للطلب: ${coupon.minOrder} JOD` });
+    const discount = coupon.type === 'fixed' ? coupon.discount : (parseFloat(subtotal) || 0) * (coupon.discount / 100);
+    res.json({ valid: true, discount: Math.round(discount * 100) / 100, code: coupon.code, type: coupon.type, id: coupon.id });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // ==================== Payment Config API ====================
 
 app.get('/api/payment-config', async (req, res) => {
@@ -535,6 +617,67 @@ app.get('/api/stats', async (req, res) => {
   } catch { res.json({ totalRevenue: 0, totalOrders: 0, newOrders: 0, deliveredOrders: 0, todayOrders: 0, paymentMethods: {} }); }
 });
 
+// ==================== Advanced Stats API ====================
+
+app.get('/api/stats/advanced', async (req, res) => {
+  try {
+    let orders;
+    if (USE_MONGO) orders = await Order.find().sort({ id: -1 }).lean();
+    else orders = readJSON(ORDERS_FILE);
+
+    // Top products
+    const productCount = {};
+    const productRevenue = {};
+    orders.forEach(o => {
+      (o.items || []).forEach(item => {
+        const key = item.title || 'Unknown';
+        productCount[key] = (productCount[key] || 0) + (item.quantity || 1);
+        productRevenue[key] = (productRevenue[key] || 0) + ((item.price || 0) * (item.quantity || 1));
+      });
+    });
+    const topProducts = Object.entries(productCount)
+      .map(([title, count]) => ({ title, count, revenue: productRevenue[title] || 0 }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    // Timeline — last 30 days
+    const timelineMap = {};
+    const today = new Date();
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().split('T')[0];
+      timelineMap[key] = { date: key, orders: 0, revenue: 0 };
+    }
+    orders.forEach(o => {
+      const key = new Date(o.createdAt).toISOString().split('T')[0];
+      if (timelineMap[key]) {
+        timelineMap[key].orders++;
+        timelineMap[key].revenue += parseFloat(o.total) || 0;
+      }
+    });
+    const timeline = Object.values(timelineMap);
+    const totalOrders = orders.length;
+    const avgOrderValue = totalOrders > 0 ? orders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0) / totalOrders : 0;
+
+    // Payment method breakdown
+    const paymentBreakdown = {};
+    orders.forEach(o => {
+      const m = o.paymentMethod || 'whatsapp';
+      paymentBreakdown[m] = (paymentBreakdown[m] || 0) + 1;
+    });
+
+    // Status breakdown
+    const statusBreakdown = {};
+    orders.forEach(o => {
+      const s = o.status || 'جديد';
+      statusBreakdown[s] = (statusBreakdown[s] || 0) + 1;
+    });
+
+    res.json({ topProducts, timeline, avgOrderValue, totalRevenue: orders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0), paymentBreakdown, statusBreakdown });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // ==================== Start Server ====================
 
 async function start() {
@@ -559,6 +702,7 @@ async function start() {
       if (!fs.existsSync(DATA_FILE)) writeJSON(DATA_FILE, getDefaultProducts());
       if (!fs.existsSync(SETTINGS_FILE)) writeJSON(SETTINGS_FILE, { whatsappNumber: '', callmebotApiKey: '', shippingCost: 0, freeShippingOver: 0 });
       if (!fs.existsSync(ORDERS_FILE)) writeJSON(ORDERS_FILE, []);
+      if (!fs.existsSync(COUPONS_FILE)) writeJSON(COUPONS_FILE, []);
     } catch {}
   }
 
