@@ -1286,12 +1286,14 @@
           editingCouponId = id;
           document.getElementById('cupCode').value = c.code;
           document.getElementById('cupDiscount').value = c.discount;
-          document.getElementById('cupType').value = c.type || 'percentage';
+          const cupTypeEl = document.getElementById('cupType');
+          if (cupTypeEl) cupTypeEl.value = c.type || 'percentage';
           document.getElementById('cupMaxUses').value = c.maxUses || '';
           document.getElementById('cupMinOrder').value = c.minOrder || '';
           document.getElementById('cupExpires').value = c.expiresAt ? c.expiresAt.split('T')[0] : '';
           document.querySelector('#couponForm h2').innerHTML = '<i class="fas fa-pen"></i> تعديل الكود';
-        });
+        })
+        .catch(() => {});
     }
 
     function deleteCoupon(id) {
