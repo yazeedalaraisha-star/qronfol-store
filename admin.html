@@ -1313,7 +1313,8 @@
           fetch('/api/coupons/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active: !(c.active !== false) }) })
             .then(r => r.json())
             .then(() => renderCoupons());
-        });
+        })
+        .catch(() => {});
     }
 
     function resetCouponForm() {
