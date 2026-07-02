@@ -201,7 +201,7 @@ function loadProducts() {
     const saved = localStorage.getItem('qronfol_products');
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch {}
   return PRODUCTS_STATIC;
@@ -225,7 +225,7 @@ async function fetchProductsFromServer() {
     const res = await fetch(API_URL);
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         PRODUCTS.length = 0;
         PRODUCTS.push(...data);
         document.dispatchEvent(new CustomEvent('products:loaded'));
@@ -233,8 +233,9 @@ async function fetchProductsFromServer() {
       }
     }
   } catch {}
+  const local = loadProducts();
   PRODUCTS.length = 0;
-  PRODUCTS.push(...JSON.parse(JSON.stringify(PRODUCTS_STATIC)));
+  PRODUCTS.push(...local);
   document.dispatchEvent(new CustomEvent('products:loaded'));
 }
 

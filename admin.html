@@ -568,7 +568,7 @@
     let editingId = null;
 
     function ensureProducts() {
-      if (!PRODUCTS || PRODUCTS.length === 0) {
+      if (!PRODUCTS) {
         PRODUCTS = JSON.parse(JSON.stringify(PRODUCTS_STATIC));
       }
     }
@@ -1420,7 +1420,8 @@
 
     // ==================== INIT ====================
 
-    document.getElementById('prodIcon').addEventListener('change', updateIconPreview);
+    var prodIconEl = document.getElementById('prodIcon');
+    if (prodIconEl) prodIconEl.addEventListener('change', updateIconPreview);
 
     checkAuth();
 
