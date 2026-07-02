@@ -352,58 +352,58 @@
   <div class="checkout-overlay" id="checkoutOverlay"></div>
   <div class="checkout-modal" id="checkoutModal">
     <button class="modal-close" id="checkoutModalClose"><i class="fas fa-times"></i></button>
-    <h3>إتمام الطلب</h3>
+    <h3 data-i18n="checkoutTitle">إتمام الطلب</h3>
 
     <div class="checkout-order-id" id="checkoutOrderId"></div>
     <div class="checkout-order-summary">
-      <h4>ملخص الطلب</h4>
+      <h4 data-i18n="orderSummary">ملخص الطلب</h4>
       <div class="checkout-order-items" id="checkoutOrderItems"></div>
       <div class="checkout-total">
-        <span>المجموع الفرعي</span>
+        <span data-i18n="subtotal">المجموع الفرعي</span>
         <span id="checkoutModalSubtotal">0 JOD</span>
       </div>
       <div class="checkout-total" id="checkoutShippingRow" style="display:none">
-        <span>التوصيل</span>
+        <span data-i18n="shippingLabel">التوصيل</span>
         <span id="checkoutModalShipping">0 JOD</span>
       </div>
       <div class="checkout-total" id="checkoutDiscountRow" style="display:none;color:var(--green-mid)">
-        <span>الخصم</span>
+        <span data-i18n="discountLabel">الخصم</span>
         <span id="checkoutModalDiscount">-0 JOD</span>
       </div>
       <div class="checkout-coupon" style="display:flex;gap:8px;margin:12px 0;align-items:center">
-        <input type="text" id="checkoutCoupon" placeholder="كود خصم" style="flex:1;padding:10px 14px;border:1.5px solid rgba(0,0,0,0.1);border-radius:var(--radius-sm);font-family:inherit;font-size:14px;direction:ltr;text-align:left;text-transform:uppercase">
-        <button type="button" onclick="applyCoupon()" class="btn-outline" style="font-size:13px;padding:10px 18px;white-space:nowrap"><i class="fas fa-check"></i> تطبيق</button>
+        <input type="text" id="checkoutCoupon" data-i18n-placeholder="couponPlaceholder" placeholder="كود خصم" style="flex:1;padding:10px 14px;border:1.5px solid rgba(0,0,0,0.1);border-radius:var(--radius-sm);font-family:inherit;font-size:14px;direction:ltr;text-align:left;text-transform:uppercase">
+        <button type="button" onclick="applyCoupon()" class="btn-outline" style="font-size:13px;padding:10px 18px;white-space:nowrap"><i class="fas fa-check"></i> <span data-i18n="applyBtn">تطبيق</span></button>
         <span id="couponMsg" style="font-size:13px;font-weight:600"></span>
       </div>
       <div class="checkout-total" style="font-size:22px;border-top:2px solid var(--green-dark);padding-top:12px;margin-top:8px">
-        <span>الإجمالي</span>
+        <span data-i18n="totalCheckout">الإجمالي</span>
         <span id="checkoutModalTotal">0 JOD</span>
       </div>
     </div>
 
     <form id="checkoutForm" onsubmit="return submitCheckout(event)">
       <div class="form-group">
-        <label>الاسم الكامل *</label>
-        <input type="text" id="checkoutName" required placeholder="مثال: رزان أحمد" autocomplete="name">
+        <label data-i18n="nameLabel">الاسم الكامل *</label>
+        <input type="text" id="checkoutName" required data-i18n-placeholder="namePlaceholder" placeholder="مثال: رزان أحمد" autocomplete="name">
       </div>
       <div class="form-group">
-        <label>رقم الهاتف *</label>
-        <input type="tel" id="checkoutPhone" required placeholder="مثال: 0792067277" autocomplete="tel">
+        <label data-i18n="phoneLabel">رقم الهاتف *</label>
+        <input type="tel" id="checkoutPhone" required data-i18n-placeholder="phonePlaceholder" placeholder="مثال: 0792067277" autocomplete="tel">
       </div>
       <div class="form-group">
-        <label>العنوان *</label>
-        <textarea id="checkoutAddress" required rows="2" placeholder="المدينة، المنطقة، الشارع، تفاصيل إضافية"></textarea>
+        <label data-i18n="addressLabel">العنوان *</label>
+        <textarea id="checkoutAddress" required rows="2" data-i18n-placeholder="addressPlaceholder" placeholder="المدينة، المنطقة، الشارع، تفاصيل إضافية"></textarea>
       </div>
       <div class="form-group">
-        <label>طريقة الدفع</label>
+        <label data-i18n="paymentLabel">طريقة الدفع</label>
         <select id="checkoutPayment" style="width:100%;padding:12px 16px;border:1.5px solid rgba(0,0,0,0.1);border-radius:var(--radius-sm);font-family:inherit;font-size:15px;background:var(--bg-light)">
-          <option value="whatsapp">الدفع عبر واتساب</option>
-          <option value="cod">الدفع عند الاستلام</option>
+          <option value="whatsapp" data-i18n="paymentWhatsapp">الدفع عبر واتساب</option>
+          <option value="cod" data-i18n="paymentCod">الدفع عند الاستلام</option>
         </select>
       </div>
       <div class="form-group">
-        <label>ملاحظات</label>
-        <textarea id="checkoutNotes" rows="2" placeholder="أي ملاحظات إضافية للطلب"></textarea>
+        <label data-i18n="notesLabel">ملاحظات</label>
+        <textarea id="checkoutNotes" rows="2" data-i18n-placeholder="notesPlaceholder" placeholder="أي ملاحظات إضافية للطلب"></textarea>
       </div>
       <button type="submit" class="btn-primary" style="width:100%;justify-content:center;padding:16px;font-size:16px">
         <i class="fab fa-whatsapp"></i>

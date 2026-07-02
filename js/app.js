@@ -402,7 +402,7 @@ function initCheckout() {
       shippingEl.textContent = formatPrice(shipping);
     } else if (shippingConfig.shippingCost > 0) {
       shippingRow.style.display = 'flex';
-      shippingEl.textContent = 'مجاني 🎉';
+      shippingEl.textContent = getText('freeShipping');
     } else {
       shippingRow.style.display = 'none';
     }
