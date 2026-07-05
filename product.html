@@ -215,9 +215,21 @@
           </div>`
         : '';
 
-      const imageHtml = p.image
-        ? `<img src="${p.image}" alt="${p.title}" onerror="this.outerHTML='<div class=product-image-placeholder><i class=\\'${getProductIcon(p.icon)}\\'></i></div>'">`
-        : `<div class="product-image-placeholder"><i class="${getProductIcon(p.icon)}"></i></div>`;
+      const storyImages = (p.story || []).filter(s => s.type === 'image' && s.url);
+      const allImages = storyImages.map(s => s.url);
+      if (p.image && !allImages.includes(p.image)) allImages.unshift(p.image);
+      const galleryHtml = allImages.length > 1
+        ? `<div class="product-gallery">
+            <div class="product-gallery-main">
+              <img src="${allImages[0]}" alt="${p.title}" id="galleryMain" onerror="this.outerHTML='<div class=product-image-placeholder><i class=\\'${getProductIcon(p.icon)}\\'></i></div>'">
+            </div>
+            <div class="product-gallery-thumbs">${allImages.map((url, i) =>
+              `<img src="${url}" class="${i === 0 ? 'active' : ''}" onclick="document.getElementById('galleryMain').src=this.src;this.parentElement.querySelectorAll('img').forEach(x=>x.classList.remove('active'));this.classList.add('active')" onerror="this.style.display='none'">`
+            ).join('')}</div>
+          </div>`
+        : (p.image
+          ? `<img src="${p.image}" alt="${p.title}" class="product-page-single-img" onerror="this.outerHTML='<div class=product-image-placeholder><i class=\\'${getProductIcon(p.icon)}\\'></i></div>'">`
+          : `<div class="product-image-placeholder"><i class="${getProductIcon(p.icon)}"></i></div>`);
 
       const badgeHtml = p.badge ? `<span class="product-page-badge ${p.badge}">${BADGE_LABELS[p.badge] || p.badge}</span>` : '';
       const oldPriceHtml = p.oldPrice ? `<span class="old-price">${formatPrice(p.oldPrice)}</span>` : '';

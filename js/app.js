@@ -480,6 +480,9 @@ async function submitCheckout(e) {
         shipping: data.shipping || shipping.toFixed(2),
         createdAt: new Date().toISOString()
       }));
+      if (data.customerWaLink) {
+        sessionStorage.setItem('lastWaLink', data.customerWaLink);
+      }
 
       cart.clear();
       updateOliveTree();

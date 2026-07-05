@@ -8,6 +8,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
+const multer = require('multer');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -19,7 +20,26 @@ const DATA_FILE = path.join(__dirname, 'data', 'products.json');
 const SETTINGS_FILE = path.join(__dirname, 'data', 'settings.json');
 const ORDERS_FILE = path.join(__dirname, 'data', 'orders.json');
 const COUPONS_FILE = path.join(__dirname, 'data', 'coupons.json');
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
 const USE_MONGO = !!MONGODB_URI;
+
+// Ensure uploads directory exists
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+// Multer config for image uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, UPLOADS_DIR),
+  filename: (req, file, cb) => cb(null, Date.now() + '-' + Math.random().toString(36).slice(2, 8) + path.extname(file.originalname))
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
+    if (allowed.test(path.extname(file.originalname))) return cb(null, true);
+    cb(new Error('صيغة الملف غير مدعومة. استخدم JPG, PNG, GIF, WebP, SVG'));
+  }
+});
 
 // Security
 app.use(helmet({
@@ -76,6 +96,7 @@ app.use(['/api/products', '/api/orders', '/api/settings'], (req, res, next) => {
 });
 
 app.use(express.static(__dirname, { maxAge: '1h', etag: true }));
+app.use('/uploads', express.static(UPLOADS_DIR, { maxAge: '1h' }));
 
 // ==================== Admin Routes ====================
 
@@ -335,7 +356,11 @@ app.post('/api/order', async (req, res) => {
 
     const fallbackUrl = `https://wa.me/${adminPhone || '962792067277'}?text=${encodeURIComponent(whatsappMessage)}`;
 
-    res.json({ success: true, method: 'callmebot', sent: false, orderId: order.id, fallbackUrl, adminPhone: adminPhone || '962792067277', total: grandTotal.toFixed(2), shipping: shipping.toFixed(2) });
+    // Build customer confirmation WhatsApp link
+    const customerMsg = `🌿 *قرنفل* 🌿\n━━━━━━━━━━━\nشكراً لطلبك ${name}! ❤️\n\n🆔 *رقم الطلب:* #${order.id}\n💵 *الإجمالي:* ${grandTotal.toFixed(2)} JOD\n🚚 *التوصيل:* ${shipping > 0 ? shipping.toFixed(2) + ' JOD' : 'مجاني'}\n📦 *المنتجات:* ${items.length} قطعة\n\nسيتم التواصل معك قريباً لتأكيد الطلب.\n\n🌐 قرنفل — متجر التراث الفلسطيني`;
+    const customerWaLink = `https://wa.me/${adminPhone || '962792067277'}?text=${encodeURIComponent(customerMsg)}`;
+
+    res.json({ success: true, method: 'callmebot', sent: false, orderId: order.id, fallbackUrl, adminPhone: adminPhone || '962792067277', total: grandTotal.toFixed(2), shipping: shipping.toFixed(2), customerWaLink });
 
     // CallMeBot notification
     if (adminPhone && apiKey) {
@@ -600,6 +625,29 @@ app.get('/api/payment-config', async (req, res) => {
       categories: settings.categories || []
     });
   } catch { res.json({ paymentMethod: 'whatsapp', shippingCost: 2.00, freeShippingOver: 30.00, categories: DEFAULT_CATEGORIES }); }
+});
+
+// ==================== Image Upload API ====================
+
+app.post('/api/upload', upload.single('image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'لم يتم رفع ملف' });
+  res.json({ success: true, url: '/uploads/' + req.file.filename });
+});
+
+app.post('/api/upload-multiple', upload.array('images', 10), (req, res) => {
+  if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'لم يتم رفع ملفات' });
+  const urls = req.files.map(f => '/uploads/' + f.filename);
+  res.json({ success: true, urls });
+});
+
+// Multer error handling
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ error: 'حجم الملف كبير جداً (الحد الأقصى 5MB)' });
+    return res.status(400).json({ error: err.message });
+  }
+  if (err) return res.status(400).json({ error: err.message });
+  next();
 });
 
 // ==================== Dashboard Stats API ====================
