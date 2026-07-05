@@ -974,15 +974,21 @@
 
     async function sendOrderToWhatsApp(orderId) {
       try {
-        const orders = await (await fetch('/api/orders')).json();
+        const [orders, settings] = await Promise.all([
+          (await fetch('/api/orders')).json(),
+          (await fetch('/api/settings')).json().catch(() => ({}))
+        ]);
         const order = orders.find(o => o.id == orderId);
-        if (order) openWhatsApp(buildWhatsAppMessage(order));
+        if (order) openWhatsApp(buildWhatsAppMessage(order), settings.whatsappNumber);
       } catch { alert('تعذر تحميل الطلب'); }
     }
 
-    function openWhatsApp(text) {
-      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    function openWhatsApp(text, phone) {
+      const p = phone || '';
+      window.open('https://wa.me/' + p + '?text=' + encodeURIComponent(text), '_blank');
     }
+
+
 
     async function sendAllNewToWhatsApp() {
       try {
@@ -1017,17 +1023,16 @@
         const res = await fetch(`/api/orders/${orderId}/notify`, { method: 'POST' });
         const data = await res.json();
         if (data.success) {
-          alert('✅ تم إرسال إشعار التحديث للعميل عبر واتساب');
+          alert('✅ تم إرسال الإشعار للعميل عبر واتساب');
+        } else if (data.waLink) {
+          window.open(data.waLink, '_blank');
         } else {
-          // Fallback: open wa.me link for manual send
+          // Fallback
           const orders = await (await fetch('/api/orders')).json();
           const order = orders.find(o => o.id == orderId);
           if (order) {
-            const msg = buildWhatsAppMessage(order);
-            const waLink = `https://wa.me/${order.phone.replace(/^0/, '962')}?text=${encodeURIComponent(msg)}`;
-            if (confirm('تعذر الإرسال التلقائي. هل تريد فتح واتساب لإرسال الإشعار يدوياً؟')) {
-              window.open(waLink, '_blank');
-            }
+            const waLink = `https://wa.me/${order.phone.replace(/^0/, '962')}?text=${encodeURIComponent(buildWhatsAppMessage(order))}`;
+            window.open(waLink, '_blank');
           }
         }
       } catch {

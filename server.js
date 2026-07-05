@@ -411,18 +411,7 @@ app.post('/api/orders/:id/notify', async (req, res) => {
     }
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
-    let settings;
-    if (USE_MONGO) {
-      settings = await getMongoSettings();
-    } else {
-      settings = readJSON(SETTINGS_FILE);
-    }
-    const apiKey = settings.callmebotApiKey;
-
-    if (!apiKey || !order.phone) {
-      return res.json({ success: false, error: 'No API key or customer phone' });
-    }
-
+    // Build customer WhatsApp link for manual fallback
     const items = (order.items || []).map(i =>
       `🛒 ${i.title}\n   ${i.quantity} × ${i.price.toFixed(2)} JOD = ${(i.price * i.quantity).toFixed(2)} JOD`
     ).join('\n');
@@ -443,13 +432,11 @@ app.post('/api/orders/:id/notify', async (req, res) => {
       `نشكرك على ثقتك! 💚🇵🇸`;
 
     const customerPhone = order.phone.replace(/^0/, '962');
-    const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(customerPhone)}&text=${encodeURIComponent(message)}&apikey=${encodeURIComponent(apiKey)}`;
+    const waLink = `https://wa.me/${customerPhone}?text=${encodeURIComponent(message)}`;
 
-    https.get(url, (response) => {
-      let data = '';
-      response.on('data', chunk => data += chunk);
-      response.on('end', () => res.json({ success: true, response: data }));
-    }).on('error', () => res.json({ success: false }));
+    // CallMeBot's free API can only send to the registrant, not to customers.
+    // Return the wa.me link for manual sending instead.
+    res.json({ success: false, waLink, error: 'CallMeBot cannot send to customers. Use the wa.me link instead.' });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
