@@ -1393,6 +1393,7 @@
     function populateCategorySelect() {
       const sel = document.getElementById('prodCategory');
       if (!sel) return;
+      if (!adminCategories || adminCategories.length === 0) return;
       const current = sel.value;
       sel.innerHTML = adminCategories.map(c =>
         `<option value="${c.key}">${c.label}</option>`

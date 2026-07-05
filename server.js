@@ -165,11 +165,21 @@ async function getMongoProducts() {
   return await Product.find().lean();
 }
 
+const DEFAULT_CATEGORIES = [
+  { key: 'accessories', label: 'إكسسوارات', labelEn: 'Accessories' },
+  { key: 'embroidery', label: 'تطريز', labelEn: 'Embroidery' },
+  { key: 'decor', label: 'ديكور', labelEn: 'Decor' },
+  { key: 'apparel', label: 'أزياء', labelEn: 'Apparel' }
+];
+
 async function getMongoSettings() {
   let s = await Settings.findOne().lean();
   if (!s) {
-    s = { whatsappNumber: '', callmebotApiKey: '', shippingCost: 2.00, freeShippingOver: 30.00, emailEnabled: false, emailHost: '', emailPort: 587, emailUser: '', emailPass: '', emailFrom: '', emailTo: '', paymentMethod: 'whatsapp', stripeKey: '', paypalClientId: '', paypalEnabled: false, categories: [{ key: 'accessories', label: 'إكسسوارات', labelEn: 'Accessories' }, { key: 'embroidery', label: 'تطريز', labelEn: 'Embroidery' }, { key: 'decor', label: 'ديكور', labelEn: 'Decor' }, { key: 'apparel', label: 'أزياء', labelEn: 'Apparel' }] };
+    s = { whatsappNumber: '', callmebotApiKey: '', shippingCost: 2.00, freeShippingOver: 30.00, emailEnabled: false, emailHost: '', emailPort: 587, emailUser: '', emailPass: '', emailFrom: '', emailTo: '', paymentMethod: 'whatsapp', stripeKey: '', paypalClientId: '', paypalEnabled: false, categories: DEFAULT_CATEGORIES };
     await Settings.create(s);
+  } else if (!s.categories || s.categories.length === 0) {
+    s.categories = DEFAULT_CATEGORIES;
+    await Settings.updateOne({}, { categories: DEFAULT_CATEGORIES });
   }
   return s;
 }
@@ -220,7 +230,7 @@ app.get('/api/settings', async (req, res) => {
   try {
     if (USE_MONGO) return res.json(await getMongoSettings());
     res.json(readJSON(SETTINGS_FILE));
-  } catch { res.json({ whatsappNumber: '', callmebotApiKey: '', shippingCost: 0, freeShippingOver: 0, categories: [] }); }
+  } catch { res.json({ whatsappNumber: '', callmebotApiKey: '', shippingCost: 0, freeShippingOver: 0, categories: DEFAULT_CATEGORIES }); }
 });
 
 app.post('/api/settings', async (req, res) => {
@@ -589,7 +599,7 @@ app.get('/api/payment-config', async (req, res) => {
       freeShippingOver: settings.freeShippingOver || 30.00,
       categories: settings.categories || []
     });
-  } catch { res.json({ paymentMethod: 'whatsapp', shippingCost: 2.00, freeShippingOver: 30.00, categories: [] }); }
+  } catch { res.json({ paymentMethod: 'whatsapp', shippingCost: 2.00, freeShippingOver: 30.00, categories: DEFAULT_CATEGORIES }); }
 });
 
 // ==================== Dashboard Stats API ====================
