@@ -1167,17 +1167,18 @@
         document.getElementById('orderStatDelivered').textContent = stats.deliveredOrders || 0;
 
         const canvas = document.getElementById('statsChart');
-        if (canvas && !statsChart) {
-          const ctx = canvas.getContext('2d');
-          statsChart = new Chart(ctx, {
+        if (canvas) {
+          if (statsChart) statsChart.destroy();
+          const byStatus = stats.byStatus || {};
+          const labels = Object.keys(byStatus);
+          const values = Object.values(byStatus);
+          const colors = { 'جديد': '#ef4444', 'تم التأكيد': '#f59e0b', 'تم الشحن': '#3b82f6', 'تم التوصيل': '#10b981' };
+          const bgColors = labels.map(l => colors[l] || '#d1d5db');
+          statsChart = new Chart(canvas.getContext('2d'), {
             type: 'doughnut',
             data: {
-              labels: ['جديد', 'تم التوصيل', 'أخرى'],
-              datasets: [{
-                data: [stats.newOrders || 0, stats.deliveredOrders || 0, Math.max(0, (stats.totalOrders || 0) - (stats.newOrders || 0) - (stats.deliveredOrders || 0))],
-                backgroundColor: ['#1e40af', '#065f46', '#d1d5db'],
-                borderWidth: 0
-              }]
+              labels,
+              datasets: [{ data: values, backgroundColor: bgColors, borderWidth: 0 }]
             },
             options: {
               responsive: true,

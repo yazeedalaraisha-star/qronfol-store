@@ -288,7 +288,7 @@ app.post('/api/order', async (req, res) => {
 
     const order = {
       id: Date.now(),
-      name, phone, address, notes, items,
+      name, phone, email: req.body.email || '', address, notes, items,
       subtotal: subtotal.toFixed(2),
       shipping: shipping.toFixed(2),
       total: grandTotal.toFixed(2),
@@ -368,8 +368,10 @@ app.post('/api/order', async (req, res) => {
       fetch(callmebotUrl).catch(() => {});
     }
 
-    // Email notification
+    // Email notification (admin)
     sendEmailNotification(order, settings).catch(() => {});
+    // Email notification (customer)
+    sendCustomerEmailNotification(order, settings).catch(() => {});
 
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -382,6 +384,45 @@ app.get('/api/orders', async (req, res) => {
     }
     res.json(readJSON(ORDERS_FILE));
   } catch { res.json([]); }
+});
+
+app.get('/api/orders/:id/track', async (req, res) => {
+  try {
+    let order;
+    if (USE_MONGO) {
+      order = await Order.findOne({ id: req.params.id }).lean();
+    } else {
+      const orders = readJSON(ORDERS_FILE);
+      order = orders.find(o => o.id == req.params.id);
+    }
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json({
+      id: order.id, name: order.name, status: order.status,
+      total: order.total, createdAt: order.createdAt,
+      items: (order.items || []).map(i => ({ title: i.title, quantity: i.quantity, price: i.price })),
+      shipping: order.shipping, paymentMethod: order.paymentMethod
+    });
+  } catch { res.status(500).json({ error: 'Server error' }); }
+});
+
+app.get('/api/stats', async (req, res) => {
+  try {
+    let orders;
+    if (USE_MONGO) {
+      orders = await Order.find().lean();
+    } else {
+      orders = readJSON(ORDERS_FILE);
+    }
+    const totalOrders = orders.length;
+    const totalRevenue = orders.reduce((s, o) => s + parseFloat(o.total || 0), 0);
+    const byStatus = {};
+    orders.forEach(o => { byStatus[o.status] = (byStatus[o.status] || 0) + 1; });
+    res.json({
+      totalOrders, totalRevenue, byStatus,
+      newOrders: byStatus['جديد'] || 0,
+      deliveredOrders: byStatus['تم التوصيل'] || 0
+    });
+  } catch { res.json({ totalOrders: 0, totalRevenue: 0, byStatus: {} }); }
 });
 
 app.put('/api/orders/:id', async (req, res) => {
@@ -530,6 +571,50 @@ async function sendEmailNotification(order, settings) {
     console.log(`[EMAIL] Notification sent for order #${order.id}`);
   } catch (err) {
     console.error(`[EMAIL] Failed: ${err.message}`);
+  }
+}
+
+async function sendCustomerEmailNotification(order, settings) {
+  if (!settings.emailEnabled || !settings.emailHost || !settings.emailUser || !settings.emailPass || !order.email) return;
+  try {
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      host: settings.emailHost, port: settings.emailPort || 587, secure: false,
+      auth: { user: settings.emailUser, pass: settings.emailPass }
+    });
+    const itemsHtml = (order.items || []).map(i =>
+      `<tr><td>${i.title}</td><td>${i.quantity}</td><td>${(i.price * i.quantity).toFixed(2)} JOD</td></tr>`
+    ).join('');
+    await transporter.sendMail({
+      from: settings.emailFrom || settings.emailUser,
+      to: order.email,
+      subject: `🌿 تم استلام طلبك #${order.id} - قرنفل`,
+      html: `
+        <div dir="rtl" style="font-family:Tajawal,Cairo,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+          <div style="text-align:center;margin-bottom:24px">
+            <h1 style="color:#1b5e20;margin:0">🌿 قرنفل</h1>
+            <p style="color:#666">متجر التراث الفلسطيني</p>
+          </div>
+          <h2 style="color:#1b5e20;">شكراً لطلبك ${order.name}! ❤️</h2>
+          <p>تم استلام طلبك بنجاح، وسيتم التواصل معك قريباً لتأكيده.</p>
+          <div style="background:#f0fdf4;border-radius:12px;padding:20px;margin:20px 0">
+            <p><strong>رقم الطلب:</strong> #${order.id}</p>
+            <p><strong>طريقة الدفع:</strong> ${order.paymentMethod === 'whatsapp' ? 'واتساب' : order.paymentMethod === 'cod' ? 'عند الاستلام' : 'بطاقة'}</p>
+            <p><strong>العنوان:</strong> ${order.address}</p>
+          </div>
+          <table style="width:100%;border-collapse:collapse;margin:16px 0">
+            <tr style="background:#1b5e20;color:white"><th style="padding:8px;text-align:right">المنتج</th><th style="padding:8px">الكمية</th><th style="padding:8px">السعر</th></tr>
+            ${itemsHtml}
+          </table>
+          <p style="font-size:18px;font-weight:700;color:#1b5e20;"><strong>الإجمالي:</strong> ${order.total} JOD</p>
+          <p style="color:#666;font-size:13px;margin-top:24px">يمكنك تتبع طلبك عبر: ${'https://qronfol-store.onrender.com/track.html'}</p>
+          <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb">
+          <p style="color:#999;font-size:12px;text-align:center">🌐 قرنفل — خيطٌ من تراث .. وقلبٌ مع غزة 💚🇵🇸</p>
+        </div>`
+    });
+    console.log(`[EMAIL] Customer notification sent for order #${order.id} to ${order.email}`);
+  } catch (err) {
+    console.error(`[EMAIL] Customer email failed: ${err.message}`);
   }
 }
 

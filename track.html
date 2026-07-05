@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تتبع الطلب - قرنفل</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700;800&family=Noto+Kufi+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  .track-page { min-height: 100vh; background: var(--bg-light); display: flex; flex-direction: column; align-items: center; padding: 40px 16px; }
+  .track-container { max-width: 520px; width: 100%; }
+  .track-card { background: white; border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); margin-bottom: 20px; }
+  .track-card h1 { font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: var(--green-dark); text-align: center; margin-bottom: 20px; }
+  .track-search { display: flex; gap: 8px; }
+  .track-search input { flex: 1; padding: 12px 16px; border: 1.5px solid rgba(0,0,0,0.1); border-radius: var(--radius-sm); font-family: inherit; font-size: 15px; direction: ltr; text-align: left; }
+  .track-search input:focus { outline: none; border-color: var(--green-mid); }
+  .track-result { display: none; }
+  .track-result.show { display: block; }
+  .track-status-bar { display: flex; justify-content: space-between; margin: 24px 0; position: relative; }
+  .track-status-bar::before { content: ''; position: absolute; top: 14px; left: 10%; right: 10%; height: 3px; background: #e5e7eb; z-index: 0; }
+  .track-status-step { display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 1; }
+  .track-status-step .dot { width: 30px; height: 30px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; transition: var(--transition); }
+  .track-status-step.active .dot { background: var(--green-mid); }
+  .track-status-step.done .dot { background: var(--green-dark); }
+  .track-status-step .label { font-size: 11px; color: var(--text-light); font-weight: 600; white-space: nowrap; }
+  .track-status-step.active .label { color: var(--green-dark); }
+  .track-detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.04); font-size: 14px; }
+  .track-detail-row:last-child { border-bottom: none; }
+  .track-detail-label { color: var(--text-light); }
+  .track-detail-value { font-weight: 600; color: var(--text-dark); }
+  .track-items { margin-top: 16px; }
+  .track-item { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px solid rgba(0,0,0,0.04); }
+  .track-error { text-align: center; padding: 20px; color: var(--palestine-red); display: none; }
+  .track-loading { text-align: center; padding: 20px; display: none; }
+  .track-footer { text-align: center; margin-top: 24px; }
+  .track-footer a { color: var(--green-mid); text-decoration: none; font-weight: 600; }
+  .track-footer a:hover { text-decoration: underline; }
+  .status-steps { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .status-badge { display: inline-block; padding: 6px 16px; border-radius: 50px; font-size: 14px; font-weight: 700; }
+  .status-new { background: #fee2e2; color: var(--palestine-red); }
+  .status-confirmed { background: #fef3c7; color: #92400e; }
+  .status-shipped { background: #dbeafe; color: #1e40af; }
+  .status-delivered { background: #d1fae5; color: #065f46; }
+</style>
+</head>
+<body>
+<div class="track-page">
+  <div class="track-container">
+    <div class="track-card">
+      <h1><i class="fas fa-search" style="color:var(--gold)"></i> تتبع طلبك</h1>
+      <p style="text-align:center;color:var(--text-mid);margin-bottom:20px;font-size:14px">أدخل رقم الطلب لمعرفة حالته</p>
+      <div class="track-search">
+        <input type="text" id="trackOrderId" placeholder="رقم الطلب" onkeydown="if(event.key==='Enter') trackOrder()">
+        <button class="btn-primary" onclick="trackOrder()" style="white-space:nowrap"><i class="fas fa-arrow-left"></i> بحث</button>
+      </div>
+      <div class="track-loading" id="trackLoading"><div class="spinner"></div></div>
+      <div class="track-error" id="trackError">الطلب غير موجود. تأكد من رقم الطلب.</div>
+    </div>
+
+    <div class="track-card track-result" id="trackResult">
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:14px;color:var(--text-light)">طلب</div>
+        <div style="font-size:20px;font-weight:800;color:var(--green-dark);direction:ltr">#<span id="resultId"></span></div>
+        <div id="resultStatusBadge" class="status-badge" style="margin-top:8px"></div>
+      </div>
+
+      <div class="track-status-bar" id="statusBar"></div>
+
+      <div class="track-detail-row"><span class="track-detail-label">العميل</span><span class="track-detail-value" id="resultName"></span></div>
+      <div class="track-detail-row"><span class="track-detail-label">تاريخ الطلب</span><span class="track-detail-value" id="resultDate"></span></div>
+      <div class="track-detail-row"><span class="track-detail-label">طريقة الدفع</span><span class="track-detail-value" id="resultPayment"></span></div>
+      <div class="track-detail-row"><span class="track-detail-label">التوصيل</span><span class="track-detail-value" id="resultShipping"></span></div>
+      <div class="track-detail-row"><span class="track-detail-label">المجموع</span><span class="track-detail-value" id="resultTotal" style="font-size:18px;color:var(--green-dark)"></span></div>
+
+      <div class="track-items" id="resultItems"></div>
+    </div>
+
+    <div class="track-footer">
+      <a href="/"><i class="fas fa-arrow-right"></i> العودة للمتجر</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STATUS_MAP = { 'جديد': 0, 'تم التأكيد': 1, 'تم الشحن': 2, 'تم التوصيل': 3 };
+  const STATUS_STEPS = ['جديد', 'تم التأكيد', 'تم الشحن', 'تم التوصيل'];
+  const STATUS_COLORS = ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
+  const STATUS_CLASSES = { 'جديد': 'status-new', 'تم التأكيد': 'status-confirmed', 'تم الشحن': 'status-shipped', 'تم التوصيل': 'status-delivered' };
+
+  async function trackOrder() {
+    const id = document.getElementById('trackOrderId').value.trim();
+    if (!id) return;
+    document.getElementById('trackLoading').style.display = 'block';
+    document.getElementById('trackError').style.display = 'none';
+    document.getElementById('trackResult').classList.remove('show');
+    try {
+      const res = await fetch('/api/orders/' + encodeURIComponent(id) + '/track');
+      const data = await res.json();
+      document.getElementById('trackLoading').style.display = 'none';
+      if (data.error) { document.getElementById('trackError').style.display = 'block'; return; }
+      showResult(data);
+    } catch { document.getElementById('trackLoading').style.display = 'none'; document.getElementById('trackError').style.display = 'block'; }
+  }
+
+  function showResult(order) {
+    document.getElementById('resultId').textContent = order.id;
+    document.getElementById('resultName').textContent = order.name;
+    document.getElementById('resultDate').textContent = new Date(order.createdAt).toLocaleString('ar', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    document.getElementById('resultPayment').textContent = order.paymentMethod === 'whatsapp' ? 'واتساب' : order.paymentMethod === 'cod' ? 'عند الاستلام' : 'بطاقة';
+    document.getElementById('resultShipping').textContent = parseFloat(order.shipping) > 0 ? order.shipping + ' JOD' : 'مجاني';
+    document.getElementById('resultTotal').textContent = order.total + ' JOD';
+    document.getElementById('resultStatusBadge').textContent = STATUS_STEPS[STATUS_MAP[order.status] ?? 0] || order.status;
+    document.getElementById('resultStatusBadge').className = 'status-badge ' + (STATUS_CLASSES[order.status] || 'status-new');
+
+    const stepIdx = STATUS_MAP[order.status] ?? 0;
+    document.getElementById('statusBar').innerHTML = STATUS_STEPS.map((s, i) =>
+      `<div class="track-status-step ${i < stepIdx ? 'done' : i === stepIdx ? 'active' : ''}">
+        <div class="dot" style="${i < stepIdx ? 'background:' + STATUS_COLORS[i] : ''}">${i < stepIdx ? '<i class=\'fas fa-check\'></i>' : i + 1}</div>
+        <div class="label">${s}</div>
+      </div>`
+    ).join('');
+
+    document.getElementById('resultItems').innerHTML = '<div style="font-weight:700;font-size:14px;margin-bottom:8px">المنتجات</div>' +
+      (order.items || []).map(i =>
+        `<div class="track-item"><span>${i.title} × ${i.quantity}</span><span>${(i.price * i.quantity).toFixed(2)} JOD</span></div>`
+      ).join('');
+
+    document.getElementById('trackResult').classList.add('show');
+  }
+</script>
+</body>
+</html>

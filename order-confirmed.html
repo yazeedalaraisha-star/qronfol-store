@@ -55,6 +55,9 @@
 
       <div class="confirmation-total" id="orderTotal">0 JOD</div>
 
+      <div id="emailNotice" style="display:none;text-align:center;padding:12px;background:#d1fae5;border-radius:var(--radius-sm);margin-bottom:16px;font-size:14px;color:#065f46">
+        <i class="fas fa-envelope"></i> تم إرسال تأكيد الطلب إلى بريدك الإلكتروني
+      </div>
       <div class="confirmation-actions">
         <a href="/" class="btn-primary"><i class="fas fa-arrow-right"></i> العودة للمتجر</a>
         <a id="customerWaLink" href="https://wa.me/962792067277" target="_blank" class="btn-outline"><i class="fab fa-whatsapp"></i> تأكيد عبر واتساب</a>
@@ -62,6 +65,7 @@
       <div style="margin-top:16px;text-align:center">
         <button onclick="resendWhatsApp()" id="resendBtn" class="btn-primary" style="background:#25D366;border-color:#25D366;font-size:14px;padding:12px 24px"><i class="fab fa-whatsapp"></i> إرسال الطلب عبر واتساب</button>
         <p style="color:var(--text-light);font-size:12px;margin-top:8px">اضغط على "إرسال الطلب" لمعاينة الرسالة وإرسالها عبر واتساب</p>
+        <p style="color:var(--text-light);font-size:11px;margin-top:4px">أو استخدم <a href="track.html" style="color:var(--green-mid)">تتبع الطلب</a> لمعرفة حالة طلبك</p>
       </div>
     </div>
   </div>
@@ -97,6 +101,11 @@
           document.getElementById('paymentRow').style.display = 'flex';
           const labels = { whatsapp: 'الدفع عبر واتساب', cod: 'الدفع عند الاستلام', stripe: 'بطاقة ائتمان', paypal: 'PayPal' };
           document.getElementById('orderPayment').textContent = labels[order.paymentMethod] || order.paymentMethod;
+        }
+
+        // Show email notice if customer provided email
+        if (order.email) {
+          document.getElementById('emailNotice').style.display = 'block';
         }
 
         // Load customer WhatsApp link from server (stored in sessionStorage by app.js)

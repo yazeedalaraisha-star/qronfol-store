@@ -428,6 +428,7 @@ async function submitCheckout(e) {
   e.preventDefault();
   const name = document.getElementById('checkoutName').value.trim();
   const phone = document.getElementById('checkoutPhone').value.trim();
+  const email = document.getElementById('checkoutEmail').value.trim();
   const address = document.getElementById('checkoutAddress').value.trim();
   const notes = document.getElementById('checkoutNotes').value.trim();
   const paymentMethod = document.getElementById('checkoutPayment').value;
@@ -446,7 +447,7 @@ async function submitCheckout(e) {
   const finalTotal = Math.max(0, subtotal + shipping - discount);
 
   const orderData = {
-    name, phone, address, notes, paymentMethod,
+    name, phone, email, address, notes, paymentMethod,
     items: items.map(i => ({ title: i.title, quantity: i.quantity, price: i.price })),
     total: finalTotal.toFixed(2),
     subtotal: subtotal.toFixed(2),
